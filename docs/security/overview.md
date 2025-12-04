@@ -17,4 +17,4 @@ Security is addressed at multiple layers:
 
 ## Non-goals
 
-RCLDX is not designed to be a perfect anti-abuse fortress. The goal is to make abuse difficult, visible, and reversible while keeping participation open.
+RCLDX is not designed to be a perfect anti-abuse fortress. The goal is to make abuse difficult, visible and reversible while keeping participation open.

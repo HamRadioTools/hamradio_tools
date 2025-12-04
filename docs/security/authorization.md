@@ -10,7 +10,7 @@ We apply a least-privilege model: each user or client can only publish or subscr
 
 MQTT ACLs are enforced at the broker level. For example:
 
-TBD
+`TBD`
 
 ## Dynamic policy
 

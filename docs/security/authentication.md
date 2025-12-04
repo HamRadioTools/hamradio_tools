@@ -4,9 +4,10 @@ Authentication ensures that we know *who* is behind a connection or a message.
 
 ## Broker-level authentication
 
-Core brokers authenticate club brokers using a basic username and password scheme. Club brokers authenticate themselves to the Core brokers using JWT tokens.
+Core brokers authenticate users through an Identity Provider (IdP) using a basic username and password scheme.
 
-## User authentication options
+Club brokers authenticate themselves to the core brokers through an IdP using a token-based scheme.
 
-TBD
+## User authentication details
 
+`TBD`

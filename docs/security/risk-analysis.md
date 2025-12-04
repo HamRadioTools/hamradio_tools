@@ -5,7 +5,7 @@ This document lists major risks and how we plan to mitigate them.
 ## Technical risks
 
 - Single core region outage
-- Data loss in Redis or storage
+- Data loss in cache or storage
 - Incorrect ACL or filter configuration
 
 ## Social risks
@@ -16,4 +16,4 @@ This document lists major risks and how we plan to mitigate them.
 
 ## Mitigation strategy
 
-RCLDX combines technical controls (replication, backups, ACLs) with governance processes (clear rules, dispute resolution, transparent decision-making).
+RCLDX combines technical controls (replication, backups, ACLs) with governance processes (clear rules, dispute resolution and transparent decision-making).
