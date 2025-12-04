@@ -1,6 +1,6 @@
 # Message formats
 
-Last updated: **2025-03**  
+Last updated: **2025-12-04**  
 Protocol Version: **v1-beta**
 
 ---
@@ -11,7 +11,7 @@ This document describes the general message structures used in the system, while
 
 Each message type contains:
 
-- a root object defining the message type (spot, chat, wx, etc.),
+- a root object defining the message type (spot, chat, wx, etc...),
 - optional extensions that provide additional context or data,
 - a strict, minimal set of required fields for compatibility across clients.
 
@@ -42,7 +42,7 @@ Every message has the same envelope pattern:
 }
 ```
 
-The <type> key defines the root object:
+The `<type>` key defines the root object:
 
 - "spot" for DX spots
 - "chat" for chat messages
@@ -149,9 +149,9 @@ They support three scopes:
 ```
 The extended block exists but is normally unused for chat.
 
-## 5, Weather Messages
+## 5. Weather Messages
 
-Weather messages (key: wx) provide space weather and/or local weather from stations or networks.
+Weather messages (key: wx) provide space weather and/or local weather from ham radio well-known services, individual stations or networks.
 
 Both blocks (solar and ground) are optional and may appear together.
 
@@ -172,7 +172,7 @@ Example: combined space & ground weather
       "pf": 26,
       "ef": 2550,
       "aurora": 1.99,
-      "auroralat_pct": 60.7,
+      "aurora_lat": 60.7,
       "bz": -10.7,
       "sw": 307.6,
       "solar_flare": 65,
@@ -195,17 +195,16 @@ Example: ground-weather only (personal station)
 ```json
 {
   "wx": {
-    "de": "EA1HET-WX",
+    "de": "EA1HET",
     "dx": "ALL",
     "ground": {
-      "gridloc": "IN73dm",
+      "gridloc": "IN43im",
       "temp_c": 21.4,
       "wind_kts": 5,
       "pressure_hpa": 1015,
       "humidity_pct": 72
     }
   },
-  "extended": { }
 }
 ````
 
