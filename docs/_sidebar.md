@@ -1,4 +1,3 @@
-**Overview**
   - [Home](README.md)
 
 - **About**
@@ -11,8 +10,7 @@
 - **Protocol**
   - [Message Formats](protocol/message-formats.md)
   - [DX Spot Schema](protocol/dx-spot-schema.md)
-  - [Filtering Rules](protocol/filters.md)
-  - [Blacklist Engine](protocol/blacklist-engine.md)
+  - [Filtering & blacklist Engine](protocol/filter-blacklist.md)
   - [gRPC Hooks](protocol/grpc-hooks.md)
   - [MQTT QoS Behaviour](protocol/qos-behaviour.md)
 

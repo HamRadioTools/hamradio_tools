@@ -4,13 +4,15 @@ Welcome to the official documentation for **RCLDX**, the next-generation Radio C
 
 ## Vision
 
-RCLDX rethinks classic ham radio clusters (DX Spider, CC Cluster, etc.) for a modern,
-Internet-scale environment. The main goals are:
+RCLDX rethinks classic ham radio clusters (DX Spider, CC Cluster, AR Cluster, CLX, Clusse, DxNet, etc...) for a modern,
+Internet-scale environment.
+
+The main goals are:
 
 - Distribute DX spots and related data in **near real-time** worldwide.
-- Allow clubs and individual hams to participate without centralized gatekeepers.
+- Allow clubs and individual hams to participate.
 - Provide **strong abuse control** without central political power.
-- Be **protocol-friendly**: DX spots, RBN, WSPR, POTA/SOTA, contest exchanges, etc.
+- Be **protocol-friendly**: DX spots, RBN, WSPR, POTA/SOTA, contest exchanges, etc...
 
 ## High-level features
 

@@ -1,6 +1,6 @@
 # Credits
 
-Acknowledgements for the Radio Club Lugones that inspired and contributed to RCLDX.
+Acknowledgements for the [ Radio Club Lugones ](https://www.radioclublugones.es/) that inspired and contributed to RCLDX.
 
 ## Ham Radio community
 
@@ -8,8 +8,8 @@ Thanks to all operators who provided feedback, shared ideas, and tested early pr
 
 Clubs:
 
-- Radioclub Foronda
-- RadioMAD EA4RCM
+- [ Radioclub Foronda ](https://www.ea2rcf.org/)
+- [ RadioMAD EA4RCM ](https://www.radiomad.es/)
 
 Individuals:
 
@@ -48,5 +48,3 @@ Admin Team:
 - EA1ITM, José Molina
 - EA4ETJ, Eduardo Olmo
 - EA4HPS, Daniel García
-
-
