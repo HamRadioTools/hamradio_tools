@@ -250,7 +250,7 @@ Filtering Rules determine where the message ends up:
 
 Routing Matrix example:  
 
-| Input Topic    | Allowed Output Topics        |
+| Input topic    | Designated output topics     |
 | -------------- | ---------------------------- |
 | `input/spot`   | `output/spot`, `output/data` |
 | `input/chat`   | `output/chat`                |
@@ -288,7 +288,7 @@ Pipeline:
     - Callsign not blacklisted
     - Comment clean
     - No pattern matches
-- Filtering Rules
+- Filtering rules
     - Frequency in valid band
     - Mode allowed
     - Type=spot supported
@@ -305,7 +305,7 @@ Although the blacklist engine and filtering rules are distinct:
 - The blacklist engine protects the cluster from abusive content.
 - Filtering rules protect the cluster from irrelevant or low-quality content.
 
-Having them in the same article makes sense because:
+Having them in the base design makes sense because:
 
 - They form a single coherent ingress processing pipeline.
 - Implementations reference one another.
