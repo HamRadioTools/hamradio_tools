@@ -10,4 +10,4 @@ RCLDX tracks QoS usage and discards traffic not carrying the right QoS flag for 
 
 ## Special situations
 
-Administrative messages (e.g., control frames, configuration sync) MAY use QoS 2, but these are rather rare.
+Administrative messages (i.e., control frames, configuration sync) MAY use QoS 2, but these are rather rare.
