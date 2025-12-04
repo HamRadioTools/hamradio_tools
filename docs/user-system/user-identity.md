@@ -12,4 +12,4 @@ Identity data may be stored in a dedicated database or in a lightweight cache st
 
 ## Privacy considerations
 
-RCLDX minimizes personal data stored and avoid unnecessary PII. The focus is on callsigns and technical behaviour, not real-world identities.
+RCLDX minimizes personal data stored and avoid unnecessary Personal Identifiable Information (PII). The focus is on callsigns and technical behaviour, not real-world identities.
