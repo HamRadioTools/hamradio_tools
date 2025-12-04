@@ -5,16 +5,16 @@ RCLDX Protocol: **v1-beta**
 
 ---
 
-This document defines how the RCLDX Cluster processes, validates, filters, accepts, rejects, or routes incoming MQTT messages.
+This document defines how the RCLDX cluster processes, validates, filters, accepts, rejects or routes incoming MQTT messages.
 
 It covers two tightly related components:
 
-- Blacklist Engine – Hard rejection of abusive, forbidden, or malicious content.
-- Filtering Rules – Routing- and logic-based decisions about where messages are allowed to flow.
+- Blacklist Engine – Hard rejection of abusive, forbidden or malicious content.
+- Filtering Rules (the outing) and logic-based decisions about where messages are allowed to flow.
 
-These two layers form the core safety and message-hygiene system of the RCLDX Cluster.
+These two layers form the core safety and message-hygiene system of the RCLDX cluster.
 
-## 1. Message Processing Pipeline
+## 1. Message processing pipeline
 
 All inbound messages pass through the following ordered pipeline:
 
@@ -35,9 +35,7 @@ Inbound MQTT Message
 
 Key principle
 
-The Blacklist Engine always runs before the Filtering Rules.
-
-- If the blacklist blocks the message:
+The blacklist engine always runs before the filtering rules. If the blacklist blocks the message:
 - It is discarded immediately
 - It is never forwarded
 - It does not reach the Core
@@ -47,16 +45,16 @@ A metric counter is incremented for observability.
 
 ## 2. Blacklist engine
 
-The Blacklist Engine enforces cluster-wide safety, preventing:
+The blacklist engine enforces cluster-wide safety, preventing:
 
 - abuse,
-- impersonation,
-- profanity,
-- spam,
-- malicious actors,
-- bots hiding behind user identities.
+- impersonation
+- profanity
+- spam
+- malicious actors
+- bots hiding behind user identities
 
-It uses three independent Redis-backed blacklist types, all evaluated at runtime.
+It uses three independent cache-backed blacklist types, all evaluated at runtime.
 
 ### 2.1. Blacklist types
 #### 2.1.1 Callsign blacklist
@@ -71,11 +69,11 @@ Characteristics:
 - Exact match only
 - Case-insensitive
 - Matches against:
-    - spot.de
-    - spot.dx
-    - chat.de
-    - wx.de
-    - satellite.de
+    - `spot.de`
+    - `spot.dx`
+    - `chat.de`
+    - `wx.de`
+    - `satellite.de`
     - any other message with a de field
 
 Behavior:
@@ -94,11 +92,11 @@ Characteristics:
 - No regex
 - Extracted from common profanity or cluster-defined prohibited terms
 - Matches against all human text fields:
-    - radio.comment
-    - chat.msg.comment
-    - system.comment
-    - wx.ground.* free-text
-    - extended.*.info
+    - `radio.comment`
+    - `chat.msg.comment`
+    - `system.comment`
+    - `wx.ground.*` free-text
+    - `extended.*.info`
 - Example matches:
     - "idiot"
     - "hate"
@@ -125,7 +123,8 @@ Boundaries:
 - Only matches whole tokens, not inside words.
 - Tokens are separated by whitespace.
 
-Examples:
+Examples:  
+
 | Pattern     | Matches                   | Does Not Match |
 | ----------- | ------------------------- | -------------- |
 | `EA?HET`    | EA1HET                    | EA10HET        |
@@ -145,32 +144,32 @@ A match results in:
 
 Node operators may permanently block:
 
-- callsigns,
-- full prefixes (via patterns),
-- repeated offenders.
+- callsigns
+- full prefixes (via patterns)
+- repeated offenders
 
 #### 2.2.2 Abuse detection
 
 If a regular user attempts to masquerade as a broker using user credentials, the system can:
 
-- set trust-level to 0,
-- permanently disable injection rights,
-- notify the Core.
+- set trust-level to 0
+- permanently disable injection rights
+- notify the Core Team
 
 #### 2.2.3 Grandfathering
 
 A future extension allows:
 - Each user to require two “grandparents” (community validators).
 - If validators revoke trust, the user:
-    - may still read spots,
-    - but cannot send spots.
+    - may still read spots ...
+    - ... but cannot send spots.
 
-Blacklist Engine integrates with such trust logic.
+Blacklist engine integrates with such trust logic.
 
 
 ## 3. Filtering rules
 
-Filtering Rules do not deal with abuse; they decide where messages may flow.
+Filtering rules do not deal with abuse; they decide where messages may flow.
 
 Examples of filtering logic:
 
@@ -182,8 +181,9 @@ Examples of filtering logic:
 
 Filtering Rules are implemented as routing logic at both:
 
-- Club Layer
-- Core Layer
+- Core layer
+- Club layer
+
 
 These filters ensure network hygiene and reduce noise.
 
@@ -211,13 +211,13 @@ Chat messages not forwarded to:
 
 The cluster may enforce:
 
-- amateur radio ITU band boundaries,
-- exclusion of 27 MHz (CB), PMR, GMRS, FRS,
-- ignoring “junk” scanner data.
+- amateur radio ITU band boundaries
+- exclusion of 27 MHz (CB), PMR, GMRS, FRS, etc...
+- ignoring “junk” scanner data
 
 Example rule:
 ```python
-If spot.radio.freq < 1.8 MHz or > 148 MHz:
+If `spot.radio.freq` < 1.8 MHz or > 148 MHz:
     drop
 ```
 
@@ -248,7 +248,8 @@ This prevents rogue nodes from injecting fake meteor data or bogus TLE packets.
 
 Filtering Rules determine where the message ends up:
 
-Routing Matrix Example
+Routing Matrix example:  
+
 | Input Topic    | Allowed Output Topics        |
 | -------------- | ---------------------------- |
 | `input/spot`   | `output/spot`, `output/data` |
@@ -257,7 +258,7 @@ Routing Matrix Example
 | `input/sat`    | `output/sat`, `output/data`  |
 | `input/system` | `output/system`              |
 
-Filtering Rules implement this logic.
+Filtering rules implement this logic.
 
 ## 4. Combined example: End-to-End flow
 
@@ -299,10 +300,10 @@ Everything passes.
 
 ## 5. Why the systems are s but combined in documentation
 
-Although the Blacklist Engine and Filtering Rules are distinct:
+Although the blacklist engine and filtering rules are distinct:
 
-- The Blacklist Engine protects the cluster from abusive content.
-- Filtering Rules protect the cluster from irrelevant or low-quality content.
+- The blacklist engine protects the cluster from abusive content.
+- Filtering rules protect the cluster from irrelevant or low-quality content.
 
 Having them in the same article makes sense because:
 
