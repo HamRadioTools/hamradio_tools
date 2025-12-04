@@ -9,7 +9,7 @@ This document defines the official DX Spot message format used in the RCLDX MQTT
 
 The goal is to define a minimal, stable, easy-to-generate structure while providing unlimited extensibility through the extended block.
 
-## 1. DX Spot Message Structure
+## 1. DX Spot message structure
 
 A DX spot message always consists of two blocks:
 
@@ -36,7 +36,7 @@ Contains all core radio information required to describe a DX spot:
 }
 ```
 
-### 1.2. Optional block: extended
+### 1.2. Optional block: `extended`
 
 Holds additional optional information such as contest metadata, RBN data, satellite data, activation references, etc...
 
@@ -70,7 +70,7 @@ Holds additional optional information such as contest metadata, RBN data, satell
 | `rst_s`   | string | No       | Sent signal report (RST/RS).                                 |
 | `rst_r`   | string | No       | Received signal report (RST/RS).                             |
 
-## 3. The extended Block
+## 3. The `extended` bnlock
 
 The extended block provides namespaced optional fields for specialized use cases:
 
@@ -81,7 +81,7 @@ The extended block provides namespaced optional fields for specialized use cases
 
 Any combination is allowed.
 
-### 3.1 Extended → Contest
+### 3.1 Extended → contest
 ```json
 "extended": {
   "contest": {
@@ -164,7 +164,7 @@ Full example:
 }
 ```
 
-### 3.3 Extended → Bird (Satellite)
+### 3.3 Extended → bird (satellite)
 ```json
 "extended": {
   "bird": {
@@ -209,7 +209,7 @@ Full example:
   }
 }
 ```
-### 3.4 Extended → Activations (POTA/SOTA/IOTA/BOTA)
+### 3.4 Extended → activations (POTA/SOTA/IOTA/BOTA)
 ```json
 "extended": {
   "activations": [
@@ -251,7 +251,7 @@ Full example:
 }
 ```
 
-## 4. Additional DX Spot Examples
+## 4. Additional DX spot examples
 ### 4.1 Simple spot (no extensions)
 ```json
 {
@@ -270,7 +270,7 @@ Full example:
 }
 ```
 
-### 4.2 Combined RBN + Activation
+### 4.2 Combined RBN + activation
 ```json
 {
   "spot": {
@@ -292,7 +292,7 @@ Full example:
 }
 ```
 
-### 4.3 Satellite + POTA Activation
+### 4.3 Satellite + POTA activation
 ```json
 {
   "spot": {
@@ -315,7 +315,7 @@ Full example:
 }
 ```
 
-## 5. Validation Rules
+## 5. Validation rules
 
 1. If spot exists, extended must exist (empty object allowed).
 1. freq must always be a decimal MHz float.
@@ -327,7 +327,7 @@ Full example:
 1. Unknown namespaces in extended are allowed (forward-compatible).
 
 
-## 6. Forward Compatibility
+## 6. Forward compatibility
 
 This schema is explicitly designed for future expansion:
 
