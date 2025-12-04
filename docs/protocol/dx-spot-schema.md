@@ -118,7 +118,7 @@ Full example:
     "contest": {
       "name": "CQ WW SSB",
       "xch_s": "14",
-      "xch_r": "05"
+      "xch_r": "54"
     }
   }
 }
@@ -174,7 +174,8 @@ Full example:
 }
 ```
 
-Fields:
+Fields:  
+
 | Field    | Description                       |
 | -------- | --------------------------------- |
 | `name`   | Satellite (“bird”) name.          |
@@ -219,7 +220,8 @@ Full example:
 }
 ```
 
-Fields:
+Fields:  
+
 | Field     | Description                                         |
 | --------- | --------------------------------------------------- |
 | `program` | Activation program (POTA, SOTA, IOTA, BOTA, WWFF…). |
