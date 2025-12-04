@@ -109,13 +109,13 @@ They support three scopes:
   "chat": {
     "de": "EA1HET",
     "dx": "DL0XXX",
-    "scope": "1to1",
+    "scope": "1to1",  // 1to1 | all | any radio band
     "msg": {
-      "comment": "Fancy a coffee?"
+      "comment": "Fancy a coffe?"
     }
-  },
-  "extended": { }
+  }
 }
+
 ```
 
 ## 4.2. Global Chat
@@ -123,14 +123,14 @@ They support three scopes:
 {
   "chat": {
     "de": "EA1HET",
-    "dx": "ALL",
-    "scope": "all",
+    "dx": "all",
+    "scope": "all",  // all | 1to1 | any radio band
     "msg": {
       "comment": "Seeking sched for 160m tomorrow."
     }
-  },
-  "extended": { }
+  }
 }
+
 ```
 
 ## 4.3. Band-wide Chat
@@ -138,14 +138,14 @@ They support three scopes:
 {
   "chat": {
     "de": "EA1HET",
-    "dx": "20m",
-    "scope": "band",
+    "dx": "BAND",
+    "scope": "20m",  // any radio band | 1to1 | all 
     "msg": {
-      "comment": "Impressive N–S opening to Africa!"
+      "comment": "Impressive opening North-South to AF"
     }
-  },
-  "extended": { }
+  }
 }
+
 ```
 The extended block exists but is normally unused for chat.
 
@@ -162,7 +162,7 @@ Example: combined space & ground weather
     "de": "W5MMW",
     "dx": "ALL",
 
-    "solar": {
+    "solar": {    
       "sfi": 200,
       "sn": 200,
       "a": 9,
@@ -172,7 +172,7 @@ Example: combined space & ground weather
       "pf": 26,
       "ef": 2550,
       "aurora": 1.99,
-      "aurora_lat": 60.7,
+      "auroralat_pct": 60.7,
       "bz": -10.7,
       "sw": 307.6,
       "solar_flare": 65,
@@ -183,11 +183,11 @@ Example: combined space & ground weather
       "gridloc": "IN55el",
       "temp_c": 7.5,
       "wind_kts": 12,
-      "pressure_hpa": 1012
+      "pressure_hpa": 1012,
+      "humidity_pct": 72
     }
-  },
 
-  "extended": { }
+  }  
 }
 ````
 
@@ -211,7 +211,7 @@ Example: ground-weather only (personal station)
 
 ## 6. Satellite Messages
 
-Satellite messages provide satellite (“bird”) metadata, TLE information, and cluster-wide satellite bulletins.
+Satellite messages provide satellite (“bird”) metadata, TLE information and cluster-wide satellite bulletins.
 
 Example: Broadcasting a TLE
 ```json
@@ -219,15 +219,14 @@ Example: Broadcasting a TLE
   "satellite": {
     "de": "ARRL",
     "dx": "ALL",
-    "bird": {
+    "bird":  {
       "name": "AO-7",
       "tle": [
         "7530U 74089B 25336.28342912 -.00000021 00000-0 15963-3 0 9994",
         "7530 101.9969 342.4412 0012315 146.2919 283.3011 12.53693888335840"
       ]
     }
-  },
-  "extended": { }
+  }
 }
 ```
 
@@ -251,8 +250,7 @@ Example: system broadcast
     "de": "SYSTEM",
     "dx": "ALL",
     "comment": "Server restart scheduled at 15:00 UTC"
-  },
-  "extended": { }
+  }
 }
 ```
 
@@ -260,7 +258,7 @@ The extended block may contain optional metadata depending on cluster needs.
 
 ## 8. Extended Block Rules
 
-The extended object:
+The extended object is only needed for Spots and next rules apply:
 
 - MUST exist (empty {} allowed).
 - MAY contain one or multiple namespaced structures (e.g., contest, rbn, bird, activations).
@@ -278,7 +276,7 @@ Example with multiple namespaces:
 }
 ```
 
-9. Forward Compatibility
+## 9. Forward Compatibility
 
 The message model is intentionally designed for growth:
 
