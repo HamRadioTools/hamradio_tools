@@ -2,7 +2,7 @@
 
 This is a living roadmap for RCLDX evolution.
 
-Last update: 2025-12-04
+Last update: **2025-12-04**
 
 ## Short Term (target Jan 2026)
 
