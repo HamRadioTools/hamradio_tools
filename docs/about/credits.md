@@ -20,8 +20,8 @@ Individuals:
 RCLDX builds on the shoulders of giants across the modern distributed-system ecosystem. Its foundation includes:
 
 - Python and Rust for high-performance backend services, async I/O pipelines and protocol handlers.
-- PostgreSQL for relational storage, transactional integrity and structured query workloads (SQL).
-- Redis for ultra-low-latency caching, ephemeral data structures, pub/sub messaging and rate-limiting primitives.
+- PostgreSQL/TimescaleDB for relational storage, transactional integrity and structured query workloads (SQL) plus the addition of hypertables for time series storage.
+- Redis/DragonflyDB for ultra-low-latency caching, ephemeral data structures, pub/sub messaging and rate-limiting primitives.
 - NATS/MQTT for lightweight, high-speed message distribution and cluster-to-cluster communication.
 - OpenTelemetry (OTLP) for vendor-neutral instrumentation, distributed traces, structured logs and metrics export.
 - Prometheus for pull-based metrics collection and time-series storage (PromQL).
