@@ -135,6 +135,7 @@ Full example:
 ```
 
 Fields:
+
 | Field    | Type | Description                                    |
 | -------- | ---- | ---------------------------------------------- |
 | `snr_db` | int  | Signal-to-noise ratio reported by the skimmer. |
