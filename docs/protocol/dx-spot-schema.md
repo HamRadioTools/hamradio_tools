@@ -1,6 +1,6 @@
 # DX Spot Schema
 
-Last updated: **2025-12-04**  
+Last updated: **2025-12-12**  
 Protocol Version: **v1-beta**
 
 ---
@@ -27,9 +27,7 @@ Contains all core radio information required to describe a DX spot:
       "comment": "CQ DX",
       "freq": 14205.0,
       "mode": "CW",
-      "band": "20m",
-      "rst_s": "59",
-      "rst_r": "54"
+      "band": "20m"
     }
   },
   "extended": { }
@@ -47,9 +45,22 @@ Holds additional optional information such as contest metadata, RBN data, satell
   "bird": { ... },
   "activations": [ ... ]
 }
-``` 
+```
+
+The concept, which is yet pending to be put against the cords with  everyday practice, is to introduce an extended data block that can carry additional information beyond the standard spot data.
+This extended block would serve two main purposes:
+
+- Allow the RCLDX cluster to automatically recognize common, recurring block types (e.g., `contest`, `rbn`, `bird` for satellite QSOs, `activations` for POTA/SOTA/BOTA/WWFF/Lighthouses, etc...).
+
+- Remain open for third-party use, primarily by logbook developers, so their software can include extra data that is useful specifically for their own programs.
+
+**NOTE**:  
+When RCLDX archives historical spot data, it will permanently store the officially recognized blocks (like those listed above), but it will not preserve the custom additional blocks added by third-party logbook software.
+
+In this way, the extended block becomes a simple, standardized “pipe” through the cluster that allows different logging programs to exchange useful extra information between their users without requiring complex individual integrations.Not saving this data is essential for making it ephemeral, which is meant to be a strategic decision.
 
 ## 2. Specification of the spot Block
+
 ### 2.1. Main fields
 
 | Field   | Type   | Required | Description                                                          |
@@ -59,33 +70,77 @@ Holds additional optional information such as contest metadata, RBN data, satell
 | `src`   | string | Yes      | Source of the spot: `manual`, `QLog`, `N1MM`, `rbn`, `skimmer`, etc. |
 | `radio` | object | Yes      | Core RF information.                                                 |
 
-### 2.2. Fields inside radio
+### 2.2. Fields inside radio
 
 | Field     | Type   | Required | Description                                                  |
 | --------- | ------ | -------- | ------------------------------------------------------------ |
+| `comment` | string | No       | Short free-text comment.                                     |
 | `freq`    | float  | Yes      | Frequency in MHz (decimal required).                         |
 | `mode`    | string | Yes      | Mode of operation: `CW`, `SSB`, `FT8`, `RTTY`, etc.          |
 | `band`    | string | Yes      | Amateur band in the `20m`, `40m`, `6m`, `2m`, `70cm` format. |
-| `comment` | string | No       | Short free-text comment.                                     |
-| `rst_s`   | string | No       | Sent signal report (RST/RS).                                 |
-| `rst_r`   | string | No       | Received signal report (RST/RS).                             |
 
-## 3. The `extended` bnlock
+## 3. The `extended` block
 
 The extended block provides namespaced optional fields for specialized use cases:
 
-- contest – Contest metadata (CQ WW, ARRL DX, etc.)
-- rbn – Reverse Beacon Network information
-- bird – Satellite (“bird”) information
-- activations – POTA, SOTA, IOTA, BOTA, WWFF, etc.
+- qso: for traditional qso data.
+- contest: Contest metadata (CQ WW, ARRL DX, etc.)
+- rbn: Reverse Beacon Network information
+- bird: Satellite (“bird”) information
+- activations: POTA, SOTA, IOTA, BOTA, WWFF, etc.
 
 Any combination is allowed.
 
-### 3.1 Extended → contest
+### 3.1 Extended → QSO
+
+```json
+"extended": {
+  "qso": {
+    "rst_s": 59,
+    "rst_r": 59
+  }
+}
+```
+
+Fields:
+
+| Field    | Type   | Required | Description                         |
+| -------- | ------ | ---------| ----------------------------------- |
+| `rst_s`  | int    | No       | RST (radio, signal, tone) sent.     |
+| `rst_r`  | int    | No       | RST (radio, signal, tone) received. |
+
+Full example:
+
+```json
+{
+  "spot": {
+    "de": "EA1HET",
+    "dx": "K3LR",
+    "src": "SmartLogger",
+    "radio": {
+      "comment": "Calling CQ Europe",
+      "freq": 14210.0,
+      "mode": "SSB",
+      "band": "20m",
+    }
+  },
+  "extended": {
+    "qso": {
+      "rst_s": 59,
+      "rst_r": 59
+    }
+  }
+}
+```
+
+### 3.2 Extended → CONTEST
+
 ```json
 "extended": {
   "contest": {
     "name": "CQ WW SSB",
+    "rst_s": 59,
+    "rst_r": 59,
     "xch_s": "123",
     "xch_r": "54"
   }
@@ -94,11 +149,18 @@ Any combination is allowed.
 
 Fields:
 
-- name → Contest name
-- xch_s → Sent contest exchange
-- xch_r → Received contest exchange
+| Field    | Type   | Required | Description                         |
+| -------- | ------ | ---------| ----------------------------------- |
+| `name`   | string | Yes(*)   | ADIF-normalized contest name.       |
+| `rst_s`  | int    | No       | RST (radio, signal, tone) sent.     |
+| `rst_r`  | int    | No       | RST (radio, signal, tone) received. |
+| `xch_s`  | string | No       | Context exchange sent.              |
+| `xch_r`  | string | No       | Context exchange received.          |
+
+(*) *If the block is to be used, the name becomes compulsory.*
 
 Full example:
+
 ```json
 {
   "spot": {
@@ -110,13 +172,13 @@ Full example:
       "freq": 14210.0,
       "mode": "SSB",
       "band": "20m",
-      "rst_s": "59",
-      "rst_r": "59"
     }
   },
   "extended": {
     "contest": {
       "name": "CQ WW SSB",
+      "rst_s": 59,
+      "rst_r": 59,
       "xch_s": "14",
       "xch_r": "54"
     }
@@ -124,11 +186,16 @@ Full example:
 }
 ```
 
-### 3.2 Extended → RBN (Reverse Beacon Network)
+### 3.3 Extended → RBN (Reverse Beacon Network)
+
 ```json
 "extended": {
   "rbn": {
-    "snr_db": 19,
+    "snr_db": 12,
+    "rst_s": null,
+    "rst_r": null,
+    "wpm": 21,
+    "bps": null,
     "grid": "IN55EM"
   }
 }
@@ -139,6 +206,10 @@ Fields:
 | Field    | Type | Description                                    |
 | -------- | ---- | ---------------------------------------------- |
 | `snr_db` | int  | Signal-to-noise ratio reported by the skimmer. |
+| `rst_s`  | int  | RST (radio, signal, tone) sent.                |
+| `rst_r`  | int  | RST (radio, signal, tone) received.            |
+| `wpm`    | int  | CW words per minute of speed.                  |
+| `bps`    | int  | RTTY bits per second.                          |
 | `grid`   | loc  | Maidenhead grid of the receiving skimmer.      |
 
 Full example:
@@ -164,7 +235,8 @@ Full example:
 }
 ```
 
-### 3.3 Extended → bird (satellite)
+### 3.4 Extended → BIRD (satellite)
+
 ```json
 "extended": {
   "bird": {
@@ -183,8 +255,8 @@ Fields:
 | `grid_s` | Grid of the transmitting station. |
 | `grid_r` | Grid of the receiving station.    |
 
-
 Full example:
+
 ```json
 {
   "spot": {
@@ -209,7 +281,9 @@ Full example:
   }
 }
 ```
-### 3.4 Extended → activations (POTA/SOTA/IOTA/BOTA)
+
+### 3.5 Extended → ACTIVATIONS (POTA/SOTA/IOTA/BOTA)
+
 ```json
 "extended": {
   "activations": [
@@ -228,8 +302,8 @@ Fields:
 | `program` | Activation program (POTA, SOTA, IOTA, BOTA, WWFF…). |
 | `ref`     | Official program reference.                         |
 
-
 Full example:
+
 ```json
 {
   "spot": {
@@ -252,7 +326,9 @@ Full example:
 ```
 
 ## 4. Additional DX spot examples
+
 ### 4.1 Simple spot (no extensions)
+
 ```json
 {
   "spot": {
@@ -271,6 +347,7 @@ Full example:
 ```
 
 ### 4.2 Combined RBN + activation
+
 ```json
 {
   "spot": {
@@ -293,6 +370,7 @@ Full example:
 ```
 
 ### 4.3 Satellite + POTA activation
+
 ```json
 {
   "spot": {
@@ -325,7 +403,6 @@ Full example:
   ✔️ contest + bird + activations together
 1. extended.activations must be an array.
 1. Unknown namespaces in extended are allowed (forward-compatible).
-
 
 ## 6. Forward compatibility
 
