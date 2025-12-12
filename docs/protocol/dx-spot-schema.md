@@ -83,15 +83,17 @@ In this way, the extended block becomes a simple, standardized “pipe” throug
 
 The extended block provides namespaced optional fields for specialized use cases:
 
-- qso: for traditional qso data.
-- contest: Contest metadata (CQ WW, ARRL DX, etc.)
-- rbn: Reverse Beacon Network information
-- bird: Satellite (“bird”) information
-- activations: POTA, SOTA, IOTA, BOTA, WWFF, etc.
+- QSO: typical data exchanged in a traditional QSO.
+- Contest: contest-specific metadata (CQ WW, ARRL DX, others).
+- RBN: Reverse Beacon Network information.
+- Bird: Satellite (“bird”) information.
+- Activations: POTA, SOTA, IOTA, BOTA, WWFF, etc...
 
-Any combination is allowed.
+Any combination of this extended and recognized by RCLDX cluster data blocks are allowed. Other blocks are allowed as well, but should be injected by the logbook deelopers and RCLDX won't tamper with them, just will forward them ephemerally.
 
 ### 3.1 Extended → QSO
+
+The block `qso` is meant to carry on the typical exchanges in SSB, CW or Digi. It is controlled the type of data the carry out (integers) but it's not enforced the length to provide space for developers to adapt their software to real life exchanges. In that sense, RCLDX cluster is aware certain activations require a specific exchange, thus why the `activations` block has been defined apart of this one. See more details in `activations` block below.
 
 ```json
 "extended": {
@@ -135,6 +137,10 @@ Full example:
 
 ### 3.2 Extended → CONTEST
 
+The `contest` block is defined with the specific purpose to carry out contest related data. RST reports are separated from exchange reports, being the formers integers in nature, while the later strings in nature.
+
+That strategy provides the necessary flexibility to individuals and software developers to carry out information via cluster without mixing the fields they should use.
+
 ```json
 "extended": {
   "contest": {
@@ -151,13 +157,14 @@ Fields:
 
 | Field    | Type   | Required | Description                         |
 | -------- | ------ | ---------| ----------------------------------- |
-| `name`   | string | Yes(*)   | ADIF-normalized contest name.       |
+| `name`   | string | Yes(*)   | ADIF-normalized(**) contest name.       |
 | `rst_s`  | int    | No       | RST (radio, signal, tone) sent.     |
 | `rst_r`  | int    | No       | RST (radio, signal, tone) received. |
 | `xch_s`  | string | No       | Context exchange sent.              |
 | `xch_r`  | string | No       | Context exchange received.          |
 
-(*) *If the block is to be used, the name becomes compulsory.*
+(*) *If the block is to be used, the name becomes compulsory.*.  
+(**) ADIF contest names are regularly checked to ensure compliance.
 
 Full example:
 
@@ -166,17 +173,17 @@ Full example:
   "spot": {
     "de": "EA1HET",
     "dx": "K3LR",
-    "src": "N1MM Logger+",
+    "src": "N1MM",
     "radio": {
-      "comment": "CQ TEST",
-      "freq": 14210.0,
-      "mode": "SSB",
+      "comment": "CQ TEST K3LR TEST",
+      "freq": 14010.0,
+      "mode": "CW",
       "band": "20m",
     }
   },
   "extended": {
     "contest": {
-      "name": "CQ WW SSB",
+      "name": "CQ WW CW",
       "rst_s": 59,
       "rst_r": 59,
       "xch_s": "14",
@@ -187,6 +194,12 @@ Full example:
 ```
 
 ### 3.3 Extended → RBN (Reverse Beacon Network)
+
+The Reverse Beacon Network is an independent project in charge of the decodification and publishing of remote stations that operate on CW, RTTY, FT4 and FT8 globally. Is is composed of hundreds of listening stations that contribute their time doing SWL in radio to report stations heard all over the globe, server as empiric listeners of the radio operations worldwide.
+
+Fortunately or unfortunately, the project is based upon operational modes that can be analyzed and interpreted, leaving SSB aside.
+
+Depending on the operational mode (CW, RTTY, FT4 or FT8) the potential spot might incorporate more or less information, and for that reaon the fields in this block are flexible. In that sense, it is necesary to mention that RCLDX cluster understands that if at some point some data it's not properly populated it's due to a problem with the data source, not a RCLDX glitch.
 
 ```json
 "extended": {
@@ -203,16 +216,17 @@ Full example:
 
 Fields:
 
-| Field    | Type | Description                                    |
-| -------- | ---- | ---------------------------------------------- |
-| `snr_db` | int  | Signal-to-noise ratio reported by the skimmer. |
-| `rst_s`  | int  | RST (radio, signal, tone) sent.                |
-| `rst_r`  | int  | RST (radio, signal, tone) received.            |
-| `wpm`    | int  | CW words per minute of speed.                  |
-| `bps`    | int  | RTTY bits per second.                          |
-| `grid`   | loc  | Maidenhead grid of the receiving skimmer.      |
+| Field    | Type | Required | Description                                    |
+| -------- | ---- | ---------|----------------------------------------------- |
+| `snr_db` | int  | No       | Signal-to-noise ratio reported by the skimmer. |
+| `rst_s`  | int  | No       | RST (radio, signal, tone) sent.                |
+| `rst_r`  | int  | No       | RST (radio, signal, tone) received.            |
+| `wpm`    | int  | No       | CW words per minute of speed.                  |
+| `bps`    | int  | No       | RTTY bits per second.                          |
+| `grid`   | loc  | No       | Maidenhead grid of the receiving skimmer.      |
 
 Full example:
+
 ```json
 {
   "spot": {
@@ -221,14 +235,18 @@ Full example:
     "src": "rbn",
     "radio": {
       "comment": "",
-      "freq": 14030.5,
-      "mode": "CW",
+      "freq": 14074.67,
+      "mode": "RTTY",
       "band": "20m"
     }
   },
   "extended": {
     "rbn": {
       "snr_db": 19,
+      "rst_s": null,
+      "rst_r": null,
+      "wpm": null,
+      "bps": 45,
       "grid": "IN55EM"
     }
   }

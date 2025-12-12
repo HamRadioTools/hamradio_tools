@@ -36,6 +36,10 @@ RCLDX builds on the shoulders of giants across the modern distributed-system eco
 
 Together, these components form a resilient, observable and high-performance platform inspired by best practices from modern telemetry systems, distributed brokers and large-scale real-time data networks.
 
+## Amaterur Radio projects & services
+
+- **The Reverse Beacon Network**, a global network of automated receiver stations that monitor amateur radio bands for Morse code (CW) and digital signals like FT8, RTTY, and PSK. Instead of transmitting like traditional beacons, RBN nodes listen continuously and report what they receive, such as call signs, signal strength, frequency, and location, via a central database. This data is displayed in near-real time on a map at [https://www.reversebeacon.net](https://www.reversebeacon.net), allowing operators to see where their signals are being heard and analyze propagation conditions. The network is valuable for testing antennas, comparing signal performance, and monitoring band openings during contests or activations.
+
 ## Authors
 
 Core Team:
