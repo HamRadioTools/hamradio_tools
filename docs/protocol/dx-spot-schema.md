@@ -40,6 +40,7 @@ Holds additional optional information such as contest metadata, RBN data, satell
 
 ```json
 "extended": {
+  "qso": { ... },
   "contest": { ... },
   "rbn": { ... },
   "bird": { ... },

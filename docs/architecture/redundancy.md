@@ -1,6 +1,6 @@
 # Redundancy & failover
 
-RCLDX aims for graceful degradation rather than hard real-time guarantees.
+RCLDX cluster aims for graceful degradation rather than hard real-time guarantees.
 
 ## Core redundancy
 
@@ -8,7 +8,7 @@ At least two independent core regions are always deployed and operational to gua
 
 A dedicated global DNS entry, `cluster.hamradio.tools` (also available as `rcldx.hamradio.tools`), automatically selects the most appropriate core region based on geographical proximity, latency and current cluster load. This provides seamless failover and optimal routing without any manual intervention.
 
-For more fine-grained control or regional debugging, RCLDX also exposes regional DNS names:
+For more fine-grained control or regional debugging, RCLDX clusters also exposes regional DNS names:
 
 - `emea.hamradio.tools` (Europe / Middle East / Africa)
 - `amer.hamradio.tools` (North / Central / South America)

@@ -1,18 +1,16 @@
+<!-- markdownlint-disable MD005 -->
+<!-- markdownlint-disable MD007 -->
+<!-- markdownlint-disable MD009 -->
+<!-- markdownlint-disable MD041 -->
+
   - [Home](README.md)
 
-- **About**
-  - [Roadmap](about/roadmap.md)
+- **About** 
+  - [Credits](about/credits.md)
   - [Governance](about/governance.md)
+  - [Roadmap](about/roadmap.md)
   - [Contributing](about/contributing.md)
   - [FAQ](about/faq.md)
-  - [Credits](about/credits.md)
-
-- **Protocol**
-  - [Message formats](protocol/message-formats.md)
-  - [DX spot schema](protocol/dx-spot-schema.md)
-  - [Filtering & blacklist engine](protocol/filter-blacklist.md)
-  - [gRPC hooks](protocol/grpc-hooks.md)
-  - [MQTT QoS behaviour](protocol/qos-behaviour.md)
 
 - **Architecture**
   - [Architecture overview](architecture/overview.md)
@@ -20,8 +18,16 @@
   - [Core nodes](architecture/core-nodes.md)
   - [Club nodes](architecture/club-nodes.md)
   - [Scalability model](architecture/scalability.md)
-  - [QoS strategy](architecture/qos-strategy.md)
   - [Redundancy & failover](architecture/redundancy.md)
+  - [QoS strategy](architecture/qos-strategy.md)
+
+
+- **Protocol**
+  - [Message formats](protocol/message-formats.md)
+  - [DX spot schema](protocol/dx-spot-schema.md)
+  - [Filtering & blacklist engine](protocol/filter-blacklist.md)
+  - [gRPC hooks](protocol/grpc-hooks.md)
+  - [MQTT QoS behaviour](protocol/qos-behaviour.md)
 
 - **User system**
   - [User identity](user-system/user-identity.md)

@@ -4,16 +4,21 @@ Acknowledgements for the [ Radio Club Lugones ](https://www.radioclublugones.es/
 
 ## Ham Radio community
 
-Thanks to all operators who provided feedback, shared ideas, and tested early prototypes, and more specifically:
+Thanks to all operators who provided feedback, shared ideas and tested early prototypes. More specifically:
 
-Clubs:
+### Clubs:
 
 - [ Radioclub Foronda ](https://www.ea2rcf.org/)
 - [ RadioMAD EA4RCM ](https://www.radiomad.es/)
 
-Individuals:
+### Individuals:
 
 - *Maybe you the first one??* 
+
+### Amaterur Radio projects & services
+
+- **The Reverse Beacon Network**, a global network of automated receiver stations that monitor amateur radio bands for Morse code (CW) and digital signals like FT8, RTTY, and PSK. Instead of transmitting like traditional beacons, RBN nodes listen continuously and report what they receive, such as call signs, signal strength, frequency, and location, via a central database. This data is displayed in near-real time on a map at [https://www.reversebeacon.net](https://www.reversebeacon.net), allowing operators to see where their signals are being heard and analyze propagation conditions. The network is valuable for testing antennas, comparing signal performance, and monitoring band openings during contests or activations.
+- **VE7CC**, a popular DX-cluster client software developed by Lee Sawkins (VE7CC) for radio amateurs, enabling real-time communication and spot sharing across global DX clusters. It supports Telnet, DDE, and RS-232 interfaces for integration with logging and contest programs, and offers advanced filtering, spot display customization, and features like automatic reconnection and missed spot retrieval. 
 
 ## Open Source projects
 
@@ -35,10 +40,6 @@ RCLDX builds on the shoulders of giants across the modern distributed-system eco
 - Vault, for secure secret management, dynamic credentials encryption-as-a-service and zero-trust identity workflows.
 
 Together, these components form a resilient, observable and high-performance platform inspired by best practices from modern telemetry systems, distributed brokers and large-scale real-time data networks.
-
-## Amaterur Radio projects & services
-
-- **The Reverse Beacon Network**, a global network of automated receiver stations that monitor amateur radio bands for Morse code (CW) and digital signals like FT8, RTTY, and PSK. Instead of transmitting like traditional beacons, RBN nodes listen continuously and report what they receive, such as call signs, signal strength, frequency, and location, via a central database. This data is displayed in near-real time on a map at [https://www.reversebeacon.net](https://www.reversebeacon.net), allowing operators to see where their signals are being heard and analyze propagation conditions. The network is valuable for testing antennas, comparing signal performance, and monitoring band openings during contests or activations.
 
 ## Authors
 

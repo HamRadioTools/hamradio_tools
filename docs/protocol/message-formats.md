@@ -5,95 +5,62 @@ Protocol Version: **v1-beta**
 
 ---
 
-The RCLDX Cluster uses a unified, minimal, and extensible JSON message model designed for high-speed radio-related data over MQTT.
+The RCLDX cluster uses a unified, minimal and extensible JSON message model designed for high-speed radio-related data over MQTT.
 
 This document describes the general message structures used in the system, while specialized structures (such as DX Spots) are documented in their respective sections.
 
 Each message type contains:
 
-- a root object defining the message type (spot, chat, wx, etc...),
-- optional extensions that provide additional context or data,
-- a strict, minimal set of required fields for compatibility across clients.
+- A root object defining the message type (spot, chat, wx, etc...).
+- Optional extensions that provide additional context or data.
+- A strict, minimal set of required fields for compatibility across clients.
 
 This section describes all message families used inside the cluster.
 
-## 1. Overview of Message Families
+## 1. Overview of message families
 
 The system currently defines the following message types:
 
 | Type          | Description                                                |
 | ------------- | ---------------------------------------------------------- |
-| **DX Spot**   | Standard amateur-radio DX spot messages (core + extended). |
+| **Spot**      | Standard amateur-radio DX spot messages (core + extended). |
 | **Chat**      | Human chat messages (1:1, band-wide, global).              |
-| **Weather**   | Space-weather and ground-weather broadcasts.               |
-| **Satellite** | Satellite telemetry and TLE broadcast messages.            |
+| **Weather**   | Space-weather and ground-weather                           |
 | **System**    | Cluster-internal system announcements.                     |
 
 DX Spots are by far the most common message and have a dedicated full specification in DX Spot Schema.
 
-## 2. General Message Structure
+## 2. General message structure
 
 Every message has the same envelope pattern:
 
 ```json
 {
   "<type>": { ... },
-  "extended": { ... }       // optional
+  "extended": { ... }  // optional
 }
 ```
 
 The `<type>` key defines the root object:
 
-- "spot" for DX spots
-- "chat" for chat messages
-- "wx" for weather messages
-- "satellite" for satellite/TLE messages
-- "system" for system events
+- "spot" for DX spots.
+- "chat" for chat messages.
+- "wx" for weather messages.
+- "system" for system events.
 
-The extended block:
-- must exist (empty object allowed)
-- may contain one or more namespaced sub-blocks
-- preserves forward compatibility for future programs and initiatives
+The `extended` block:
 
-## 3. Spot Messages (DX Spots)
+- may exist (empty object allowed).
+- may contain one or more namespaced sub-blocks.
+- preserves forward compatibility for future programs and initiatives.
 
-DX Spots are the core message type of the cluster.
-Only the high-level shape is shown here — the full specification is in DX Spot Schema.
+## 3. Spot messages (DX spots)
 
-High-level shape
-```json
-{
-  "spot": {
-    "de": "EA1HET",
-    "dx": "DL0XYZ",
-    "src": "manual",
-    "radio": {
-      "comment": "CQ DX",
-      "freq": 14205.0,
-      "mode": "CW",
-      "band": "20m",
-      "rst_s": "59",
-      "rst_r": "54"
-    }
-  },
-  "extended": { }
-}
-```
+DX spots are the most important message type on the RCLDX cluster. See [DX spot Schema](dx-spot-schema.md) for the full specification details, field definitions and examples.
 
-The extended block may include:
+## 4. Chat messages
 
-- contest
-- rbn
-- bird
-- activations
-
-(future namespaces: wspr, lora, telemetry, etc.)
-
-See: DX Spot Schema for full details, field definitions, and examples.
-
-## 4. Chat Messages
-
-Chat messages allow clusters, clubs, and users to communicate in real time.
+Chat messages allow clusters, clubs and users to communicate in near real time.
 
 They support three scopes:
 
@@ -103,53 +70,54 @@ They support three scopes:
 | **band** | Message broadcast to users monitoring a specific band. |
 | **all**  | Message broadcast globally.                            |
 
-## 4.1. 1-to-1 Chat
+### 4.1. 1-to-1 chat
+
 ```json
 {
   "chat": {
     "de": "EA1HET",
     "dx": "DL0XXX",
-    "scope": "1to1",  // 1to1 | all | any radio band
+    "scope": "1to1",  // 1to1 | all | band
     "msg": {
       "comment": "Fancy a coffe?"
     }
   }
 }
-
 ```
 
-## 4.2. Global Chat
+### 4.2. Global chat
+
 ```json
 {
   "chat": {
     "de": "EA1HET",
     "dx": "all",
-    "scope": "all",  // all | 1to1 | any radio band
+    "scope": "all",  // all | band | 1to1
     "msg": {
       "comment": "Seeking sched for 160m tomorrow."
     }
   }
 }
-
 ```
 
-## 4.3. Band-wide Chat
+### 4.3. Band-wide chat
+
 ```json
 {
   "chat": {
     "de": "EA1HET",
-    "dx": "BAND",
-    "scope": "20m",  // any radio band | 1to1 | all 
+    "dx": "20m",
+    "scope": "band",  // band | 1to1 | all  
     "msg": {
       "comment": "Impressive opening North-South to AF"
     }
   }
 }
-
 ```
-The extended block exists but is normally unused for chat.
 
-## 5. Weather Messages
+The `extended` block may be present, but it's normally unused for chat.
+
+## 5. Weather messages
 
 Weather messages (key: wx) provide space weather and/or local weather from ham radio well-known services, individual stations or networks.
 
@@ -160,7 +128,7 @@ Example: combined space & ground weather
 {
   "wx": {
     "de": "W5MMW",
-    "dx": "ALL",
+    "dx": "all",
 
     "solar": {    
       "sfi": 200,
@@ -196,7 +164,7 @@ Example: ground-weather only (personal station)
 {
   "wx": {
     "de": "EA1HET",
-    "dx": "ALL",
+    "dx": "all",
     "ground": {
       "gridloc": "IN43im",
       "temp_c": 21.4,
@@ -208,11 +176,12 @@ Example: ground-weather only (personal station)
 }
 ````
 
-## 6. Satellite Messages
+## 6. Satellite messages
 
 Satellite messages provide satellite (“bird”) metadata, TLE information and cluster-wide satellite bulletins.
 
 Example: Broadcasting a TLE
+
 ```json
 {
   "satellite": {
@@ -229,42 +198,44 @@ Example: Broadcasting a TLE
 }
 ```
 
-This message type does not represent QSOs via satellites (those are DX Spots with `extended.bird`).
+This message type does not represent QSOs via satellites; those are DX spots with `extended`.`bird` clauses.
 
-## 7. System Messages
+## 7. System messages
 
 System messages (key: system) broadcast cluster-internal announcements.
 
 Examples:
 
-- scheduled maintenance
-- server restarts
-- cluster routing changes
-- operational warnings
+- scheduled maintenance.
+- server restarts.
+- cluster routing changes.
+- operational warnings.
 
 Example: system broadcast
+
 ```json
 {
   "system": {
     "de": "SYSTEM",
-    "dx": "ALL",
+    "dx": "all",
     "comment": "Server restart scheduled at 15:00 UTC"
   }
 }
 ```
 
-The extended block may contain optional metadata depending on cluster needs.
+The `extended` block may contain optional metadata depending on cluster needs.
 
-## 8. Extended Block Rules
+## 8. Extended block rules
 
-The extended object is only needed for Spots and next rules apply:
+The `extended` object is only needed for Spots and next rules apply:
 
-- MUST exist (empty {} allowed).
-- MAY contain one or multiple namespaced structures (e.g., contest, rbn, bird, activations).
+- MAY exist (empty {} allowed).
+- MAY contain one or multiple namespaced structures (i.e., qso, contest, rbn, bird, activations).
 - MUST NOT contain duplicate namespaces.
 - MAY contain vendor-specific or experimental namespaces without breaking compatibility.
 
 Example with multiple namespaces:
+
 ```json
 "extended": {
   "contest": { "name": "CQ WW SSB" },
@@ -275,17 +246,17 @@ Example with multiple namespaces:
 }
 ```
 
-## 9. Forward Compatibility
+## 9. Forward compatibility
 
 The message model is intentionally designed for growth:
 
-- New digital reporting formats (WSPR, PSKReporter, FT4 auto-decoding)
+- New digital reporting formats (WSPR, PSKReporter, Digi auto-decoding)
 - LoRa / meshed spot injection
 - Meteor scatter, EME, or other propagation-driven spot systems
 - AI-assisted decoders
 - Club-level custom metadata
 
-Any new functionality fits cleanly under extended.
+Any new functionality fits cleanly under `extended`.
 
 ## 10. Summary
 

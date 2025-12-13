@@ -17,6 +17,8 @@ The architecture must be globally reachable, resilient against abuse and easy fo
 
 RCLDX understands and separates responsibilities between a **Core layer** of globally connected MQTT brokers and a **Club layer** that connects local communities to the core.
 
-**Clients can connect directly to Core servers and in most cases that will be the default behavior**.
+**Clients can connect directly to core servers and in most cases that will be the default behavior**.
 
-Nonetheless, there are specific use cases where club MQTT servers or project MQTT servers might desire to capture spot data to work on the spots before forwarding this traffic to core. That might be the use cases of initiatives like Parks on the Air (POTA), Bunkera on the Air (BOTA), Summits on the Air (SOTA), World Wide Flora & Fauna (WWFF), Lighthouses on the Air (LOTA) and similar initiatives. In their use case, capturing spot data before send it to the global cluster is useful for the activations to be well planed in advance.
+However, there are certain scenarios where dedicated club or project-specific MQTT brokers may be preferable. These can capture spot data locally, process or act on the spots, and then forward them to the global MQTT network. This approach is particularly relevant for programs such as Parks on the Air (POTA), Bunkers on the Air (BOTA), Summits on the Air (SOTA), World Wide Flora & Fauna (WWFF), Lighthouses on the Air (LOTA), and similar initiatives.
+
+In these cases, intercepting spot data, performing actions based on it (such as filtering, enrichment, or local notification), and subsequently forwarding the spots to the global network is a smart and effective strategy. It enables activators to better plan their activations in advance and improves overall coordination within the program.

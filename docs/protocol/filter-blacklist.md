@@ -16,6 +16,8 @@ These two layers form the core safety and message-hygiene system of the RCLDX cl
 
 ## 1. Message processing pipeline
 
+### 1.1 Inbound flow
+
 All inbound messages pass through the following ordered pipeline:
 
 ```txt
@@ -30,83 +32,86 @@ Inbound MQTT Message
        │
 4. Filtering Rules   ← Routing decisions
        │
-5. Forwarding to output/{spot,chat,wx,data,sat,system}
+5. Forwarding to output/{spot,chat,wx,system}
 ```
 
-Key principle
+### 1.2 Key principle(s)
 
 The blacklist engine always runs before the filtering rules. If the blacklist blocks the message:
-- It is discarded immediately
-- It is never forwarded
-- It does not reach the Core
+
+- It is discarded immediately.
+- It is never forwarded.
+- It does not reach the core broker topics.
 
 A metric counter is incremented for observability.
-
 
 ## 2. Blacklist engine
 
 The blacklist engine enforces cluster-wide safety, preventing:
 
-- abuse,
-- impersonation
-- profanity
-- spam
-- malicious actors
-- bots hiding behind user identities
+- abuse.
+- impersonation.
+- profanity.
+- spam.
+- malicious actors.
+- bots hiding behind user identities.
 
 It uses three independent cache-backed blacklist types, all evaluated at runtime.
 
 ### 2.1. Blacklist types
+
 #### 2.1.1 Callsign blacklist
 
 Stored in:
+
 ```txt
 blacklist:callsigns
 ```
 
 Characteristics:
 
-- Exact match only
-- Case-insensitive
+- Exact match only.
+- Case-insensitive.
 - Matches against:
-    - `spot.de`
-    - `spot.dx`
-    - `chat.de`
-    - `wx.de`
-    - `satellite.de`
-    - any other message with a de field
+  - `spot.de`.
+  - `spot.dx`.
+  - `chat.de`.
+  - `wx.de`.
+  - `satellite.de`.
+  - any other message with a de field.
 
-Behavior:
-If a callsign appears in a message → drop immediately + log incident.
+Behavior: if a callsign appears in a message → drop immediately + log incident.
 
 #### 2.1.2 Forbidden words blacklist
 
 Stored in:
+
 ```txt
-blacklist:words
+blacklist:word(s)
 ```
 
 Characteristics:
 
-- Exact word match only
-- No regex
-- Extracted from common profanity or cluster-defined prohibited terms
+- Exact word match only.
+- No regex.
+- Extracted from common profanity or cluster-defined prohibited terms.
 - Matches against all human text fields:
-    - `radio.comment`
-    - `chat.msg.comment`
-    - `system.comment`
-    - `wx.ground.*` free-text
-    - `extended.*.info`
+  - `radio.comment`.
+  - `chat.msg.comment`.
+  - `system.comment`.
+  - `wx.ground.*` free-text.
+  - `extended.*.info`.
 - Example matches:
-    - "idiot"
-    - "hate"
-    - "racist"
+  - "idiot".
+  - "hate".
+  - "racist".
 
 If found → drop.
 
 #### 2.1.3 Pattern blacklist (wildcard syntax)
 
 Stored in:
+
 ```txt
 blacklist:patterns
 ```
@@ -115,8 +120,8 @@ This engine uses a custom wildcard language defined at RCLDX project level.
 
 Supported:
 
-- * → matches any number of characters
-- ? → matches exactly one character
+- \* → matches any number of characters.
+- ? → matches exactly one character.
 
 Boundaries:
 
@@ -131,15 +136,14 @@ Examples:
 | `*cluster*` | cluster-hf, rcldx-cluster | superclustered |
 | `CQ*TEST`   | CQ TEST, CQ WW TEST       | myCQ123TEST    |
 
-
 A match results in:
 
-- message dropped,
-- metrics incremented,
+- message dropped.
+- metrics incremented.
 - optional trust score reduction (if enabled).
 
-
 ### 2.2. Advanced Behavior
+
 #### 2.2.1 Permanent bans
 
 Node operators may permanently block:
@@ -153,19 +157,19 @@ Node operators may permanently block:
 If a regular user attempts to masquerade as a broker using user credentials, the system can:
 
 - set trust-level to 0
-- permanently disable injection rights
-- notify the Core Team
+- temporarily or permanently disable injection rights.
+- notify the Core team.
 
 #### 2.2.3 Grandfathering
 
 A future extension allows:
+
 - Each user to require two “grandparents” (community validators).
 - If validators revoke trust, the user:
-    - may still read spots ...
-    - ... but cannot send spots.
+  - may still read spots ...
+  - ... but cannot send spots.
 
 Blacklist engine integrates with such trust logic.
-
 
 ## 3. Filtering rules
 
@@ -173,21 +177,21 @@ Filtering rules do not deal with abuse; they decide where messages may flow.
 
 Examples of filtering logic:
 
-- drop spots outside amateur radio bands
-- drop invalid modes or frequencies
-- block weather broadcasts from untrusted nodes
-- avoid forwarding private club data to the global Core
-- only forward satellites to specific topics
+- drop spots outside amateur radio bands.
+- drop invalid modes or frequencies.
+- block weather broadcasts from untrusted nodes.
+- avoid forwarding private club data to the global core.
+- only forward satellites to specific topics.
 
 Filtering Rules are implemented as routing logic at both:
 
 - Core layer
 - Club layer
 
-
 These filters ensure network hygiene and reduce noise.
 
 ### 3.1. Structural filters
+
 #### 3.1.1 Message type Filters
 
 Club or core nodes may allow/deny:
@@ -195,10 +199,10 @@ Club or core nodes may allow/deny:
 - spot
 - chat
 - wx
-- satellite
 - system
 
 Example:
+
 ```txt
 Chat messages allowed:
   input/chat → output/chat
@@ -216,14 +220,16 @@ The cluster may enforce:
 - ignoring “junk” scanner data
 
 Example rule:
+
 ```python
-If `spot.radio.freq` < 1.8 MHz or > 148 MHz:
+if `spot.radio.freq` < 1.8 MHz or > 148 MHz:
     drop
 ```
 
 #### 3.1.3 Mode filters
 
 Example allowed list:
+
 ```txt
 CW, SSB, FM, AM, FT8, FT4, RTTY
 ```
@@ -235,6 +241,7 @@ Everything else is ignored unless whitelisted.
 Examples:
 
 - Only allow weather from:
+
 ```txt
 TRUSTED_WEATHER_NODES = [ "NOAA", "W5MMW" ]
 ```
@@ -246,9 +253,7 @@ This prevents rogue nodes from injecting fake meteor data or bogus TLE packets.
 
 ### 3.3. Topic-based routing
 
-Filtering Rules determine where the message ends up:
-
-Routing Matrix example:  
+Filtering rules determine where the message ends up. An example routing matrix follows:
 
 | Input topic    | Designated output topics     |
 | -------------- | ---------------------------- |
@@ -263,6 +268,7 @@ Filtering rules implement this logic.
 ## 4. Combined example: End-to-End flow
 
 Consider the following spot:
+
 ```json
 {
   "spot": {
@@ -285,20 +291,20 @@ Pipeline:
 - JSON valid? Yes
 - Normalized? Yes
 - Blacklist check
-    - Callsign not blacklisted
-    - Comment clean
-    - No pattern matches
+  - Callsign not blacklisted
+  - Comment clean
+  - No pattern matches
 - Filtering rules
-    - Frequency in valid band
-    - Mode allowed
-    - Type=spot supported
+  - Frequency in valid band
+  - Mode allowed
+  - Type=spot supported
 Forward
-    - output/spot
-    - output/data
+  - output/spot
+  - output/data
 
 Everything passes.
 
-## 5. Why the systems are s but combined in documentation
+## 5. Why the systems operate that way?
 
 Although the blacklist engine and filtering rules are distinct:
 

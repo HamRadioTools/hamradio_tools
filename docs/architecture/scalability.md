@@ -1,6 +1,6 @@
 # Scalability model
 
-RCLDX is inspired by modern large-scale architectures but adapted to the ham radio context.
+RCLDX cluster is inspired by modern large-scale architectures but adapted to the specific ham radio context.
 
 ## Horizontal scaling
 
@@ -21,4 +21,4 @@ Potential bottlenecks include:
 - Network bandwidth between regions
 - Cache operations
 
-We mitigate these by using efficient topic design, batching and careful QoS choices in addition to eventual consistency.
+We mitigate these by using efficient topic design, batching and doing careful QoS choices in addition to implementing eventual consistency.
