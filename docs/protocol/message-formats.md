@@ -56,7 +56,7 @@ The `extended` block:
 
 ## 3. Spot messages (DX spots)
 
-DX spots are the most important message type on the RCLDX cluster. See [DX spot Schema](dx-spot-schema.md) for the full specification details, field definitions and examples.
+DX spots are the most important message type on the RCLDX cluster. See [DX spot Schema](protocol/dx-spot-schema.md) for the full specification details, field definitions and examples.
 
 ## 4. Chat messages
 
@@ -124,6 +124,7 @@ Weather messages (key: wx) provide space weather and/or local weather from ham r
 Both blocks (solar and ground) are optional and may appear together.
 
 Example: combined space & ground weather
+
 ```json
 {
   "wx": {
@@ -160,6 +161,7 @@ Example: combined space & ground weather
 ````
 
 Example: ground-weather only (personal station)
+
 ```json
 {
   "wx": {
