@@ -10,10 +10,23 @@ We assume that some participants may behave maliciously or irresponsibly. We als
 
 Security is addressed at multiple layers:
 
-- Transport security (TLS / mTLS)
-- Authentication and authorization
-- Community-based trust (Grandfathering model)
-- Abuse detection and filtering
+- Transport security (TLS / mTLS).
+- Data being protected at rest.
+- Authentication and authorization.
+- Community-based trust ([grandfathering model](grandfathering-model.md)).
+- Abuse detection and filtering.
+- Automation as the source of incident response mechanism.
+- Observability.
+
+## During incidents
+
+It would be a paradox thinking incidents will never hapen. When they do happen, the leadership, composed by the Core team and the Admins team, will coordinate internally and externally with clubs operators to minimize the impact and revert back the sooner the posible to normal operations.
+
+## Post-incident actions
+
+RCLDX cluster Core team would be in charge of the RCA (Root Cause Analysis) and reports will be written and timely published for full transparency.
+
+Attribution is the most complex characteristic while studying an attack. However, if attaibution would be feasible, actors will be exposed for the community knowledge.
 
 ## Non-goals
 

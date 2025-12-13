@@ -8,7 +8,7 @@ The bridge emulates a classic DX cluster server on a Telnet port, translating be
 
 ## Mapping
 
-Spots read from MQTT are rendered as traditional DX cluster lines; user inputs are parsed and turned into JSON spot messages.
+Spots read from MQTT are rendered as traditional DX cluster lines; user inputs in JSON format are parsed and turned into Telnet spot messages.
 
 ## Limitations
 

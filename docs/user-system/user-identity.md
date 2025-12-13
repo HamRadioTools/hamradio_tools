@@ -1,10 +1,10 @@
 # User identity
 
-RCLDX is built around ham radio callsigns as the primary identity.
+RCLDX is built around amateur radio callsigns as the primary identity.
 
 ## Core ideas
 
-A user is essentially defined by their callsign plus additional metadata (club membership, roles, sponsorships, votes, etc...).
+A user is essentially defined by their callsign plus additional metadata (club membership, roles, sponsorships, grandfathering votes, other data).
 
 ## Identity storage
 
@@ -12,4 +12,6 @@ Identity data may be stored in a dedicated database or in a lightweight cache st
 
 ## Privacy considerations
 
-RCLDX minimizes personal data stored and avoid unnecessary Personal Identifiable Information (PII). The focus is on callsigns and technical behaviour, not real-world identities.
+RCLDX minimizes personal data stored and avoid unnecessary Personal Identifiable Information (PII).
+
+The focus is on callsigns and technical behaviour, not real-world identities.

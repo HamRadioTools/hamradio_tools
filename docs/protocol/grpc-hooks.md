@@ -71,4 +71,5 @@ gRPC hooks never replace the blacklist engine; they operate after it.
 
 RCLDX defines three hook categories, each corresponding to different points in the cluster pipeline.
 
-`TBD`
+> NOTE:  
+> As of the document publishing date, the gRPC structure is in Beta stage, not being 100% productive.

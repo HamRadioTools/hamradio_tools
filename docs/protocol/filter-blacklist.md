@@ -77,8 +77,7 @@ Characteristics:
   - `spot.dx`.
   - `chat.de`.
   - `wx.de`.
-  - `satellite.de`.
-  - any other message with a de field.
+  - any other message with a `de` field.
 
 Behavior: if a callsign appears in a message → drop immediately + log incident.
 
@@ -99,8 +98,8 @@ Characteristics:
   - `radio.comment`.
   - `chat.msg.comment`.
   - `system.comment`.
-  - `wx.ground.*` free-text.
-  - `extended.*.info`.
+  - `wx.*`.
+  - `extended.*`.
 - Example matches:
   - "idiot".
   - "hate".
@@ -140,7 +139,7 @@ A match results in:
 
 - message dropped.
 - metrics incremented.
-- optional trust score reduction (if enabled).
+- optional, trust score reduction.
 
 ### 2.2. Advanced Behavior
 
@@ -154,20 +153,18 @@ Node operators may permanently block:
 
 #### 2.2.2 Abuse detection
 
-If a regular user attempts to masquerade as a broker using user credentials, the system can:
+If a regular user attempts to masquerade as a broker using regular user credentials, the cluster will:
 
-- set trust-level to 0
-- temporarily or permanently disable injection rights.
+- set trust-level to 0 (the grandfathering)
+- temporarily or permanently disable login rights.
 - notify the Core team.
 
 #### 2.2.3 Grandfathering
 
-A future extension allows:
+By default, users enter RCLDX wit no grandfathers, allowing read-only operation. In orer to post spot and become fulluy active each user should grab 2 granfather votes. Grandfathers act like community validators. If validators revoke trust, the user:
 
-- Each user to require two “grandparents” (community validators).
-- If validators revoke trust, the user:
-  - may still read spots ...
-  - ... but cannot send spots.
+- may still read spots ...
+- ... but cannot send spots.
 
 Blacklist engine integrates with such trust logic.
 
@@ -179,22 +176,16 @@ Examples of filtering logic:
 
 - drop spots outside amateur radio bands.
 - drop invalid modes or frequencies.
-- block weather broadcasts from untrusted nodes.
+- block weather broadcasts from untrusted and/or unknown nodes.
 - avoid forwarding private club data to the global core.
-- only forward satellites to specific topics.
 
-Filtering Rules are implemented as routing logic at both:
-
-- Core layer
-- Club layer
-
-These filters ensure network hygiene and reduce noise.
+Filtering Rules are implemented as routing logic at core layer only. Clubs are open to implement similar control mechanism and if clubs require support RCLDX Core team will support the clubs. These filters ensure network hygiene and reduce noise.
 
 ### 3.1. Structural filters
 
 #### 3.1.1 Message type Filters
 
-Club or core nodes may allow/deny:
+Both clubs and/or core nodes may allow/deny:
 
 - spot
 - chat

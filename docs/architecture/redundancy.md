@@ -28,4 +28,5 @@ In case of partial failures:
 - If a club broker fails, clients may reconnect to a backup broker.
 - If backend components or filters are degraded, the system may fall back to a safe mode where only a subset of traffic is accepted.
 
-An status page will be soon put into service indicating the live status of each MQTT broker node, club brokers included.
+>**NOTE**:  
+RCLDX cluster is working on building an status page will be soon put into service indicating the live status of each MQTT broker node, club brokers included.

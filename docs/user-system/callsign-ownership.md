@@ -15,5 +15,5 @@ Anyone can type any callsign in a client configuration. RCLDX need ways to tie c
 
 ## Limitations
 
-No method is perfect. RCLDX aims for 'good enough' verification plus ongoing social control via the grandfathering model.
+No method is perfect. RCLDX aims for 'good enough' verification plus ongoing social control via the [grandfathering model](security/grandfathering-model.md).
 

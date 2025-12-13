@@ -22,6 +22,6 @@ To avoid any misunderstanding: this selective forwarding is not intended to rest
 
 A good example of this is the potential use of RCLDX cluster to forward mesh related information from LoRa-based deployments, like Meshtastic or MeshCore.
 
-## Local Policies
+## Local policies
 
 Clubs can implement their own local policies (i.e., local filters, language rules) as long as they still respect global rules when forwarding to the core.

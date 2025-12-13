@@ -1,6 +1,6 @@
 # MeshCore/Meshtastic air interfaces
 
-RCLDX can be integrated with MeshCore/Meshtastic style RF networks.
+RCLDX can be integrated with MeshCore / Meshtastic style of RF networks.
 
 ## Concept
 

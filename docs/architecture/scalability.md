@@ -6,7 +6,7 @@ RCLDX cluster is inspired by modern large-scale architectures but adapted to the
 
 We scale primarily by adding more brokers and by sharding topics or clubs across them.
 
-## Hot Paths vs Cold Paths
+## Hot paths vs Cold paths
 
 We keep the hot path minimal and offload cold tasks:
 
