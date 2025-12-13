@@ -44,5 +44,4 @@
 
 - **Integration**
   - [MeshCore air interface](integration/meshcore-air-interface.md)
-  - [Digital modes integration](integration/digital-modes.md)
   - [Telnet bridge](integration/telnet-bridge.md)
