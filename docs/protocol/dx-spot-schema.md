@@ -418,8 +418,10 @@ Full example:
 1. freq must always be a decimal MHz float.
 1. band must follow the "20m", "40m", "2m", "70cm" format.
 1. Namespaces inside extended must not collide:  
-  ❌ contest twice  
-  ✔️ contest + bird + activations together
+
+   - contest twice
+   - contest + bird + activations together
+
 1. extended.activations must be an array.
 1. Unknown namespaces in extended are allowed (forward-compatible).
 
