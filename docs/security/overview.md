@@ -13,7 +13,7 @@ Security is addressed at multiple layers:
 - Transport security (TLS / mTLS).
 - Data being protected at rest.
 - Authentication and authorization.
-- Community-based trust ([grandfathering model](grandfathering-model.md)).
+- Community-based trust ([grandfathering model](security/grandfathering-model.md)).
 - Abuse detection and filtering.
 - Automation as the source of incident response mechanism.
 - Observability.
