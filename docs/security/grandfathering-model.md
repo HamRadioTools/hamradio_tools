@@ -21,4 +21,3 @@ This design:
 - Encourages local social control instead of central authority.
 - Makes abuse harder to sustain over time.
 - Distributes responsibility across the community.
-

@@ -13,4 +13,3 @@ Operators should monitor message loss metrics and only increase QoS for specific
 ## Client guidelines
 
 Clients should be coded defensively: they must handle duplicates, out-of-order messages, and the occasional gap in the stream.
-

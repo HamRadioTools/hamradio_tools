@@ -268,4 +268,4 @@ root object + extended block
 - Chat, Weather, Satellite, and System messages follow similar patterns.
 - The model is intentionally simple to generate and highly extensible.
 
-For specialized details about DX spots, see the companion document [DX Spot Schema](dx-spot-schema.md)
+For specialized details about DX spots, see the companion document [DX Spot Schema](protocol/dx-spot-schema.md)

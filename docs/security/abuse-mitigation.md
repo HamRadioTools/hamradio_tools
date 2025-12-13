@@ -22,4 +22,3 @@ Core Team has documented procedures to:
 - Identify malicious actors
 - Revoke tokens and sponsorships
 - Share intelligence between clubs and Core Team
-
