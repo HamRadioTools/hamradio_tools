@@ -1,4 +1,4 @@
-# DX spot cchema
+# DX spot schema
 
 Last updated: **2025-12-12**  
 Protocol Version: **v1-beta**
