@@ -3,9 +3,7 @@
 <!-- markdownlint-disable MD009 -->
 <!-- markdownlint-disable MD041 -->
 
-<center>
-<a href="https://hamradio.tools" alt="Website">Website Home</>
-</center>
+[Website Home](https://hamradio.tools)
 
   - [Index](README.md)
 
