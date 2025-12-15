@@ -23,7 +23,6 @@
   - [Redundancy & failover](architecture/redundancy.md)
   - [QoS strategy](architecture/qos-strategy.md)
 
-
 - **Protocol**
   - [Message formats](protocol/message-formats.md)
   - [DX spot schema](protocol/dx-spot-schema.md)
