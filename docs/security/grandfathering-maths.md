@@ -132,6 +132,11 @@ S3 is an indefinite cooldown state. Entry is explicit (not automatic timeout); t
 
 Entry to S3 should be the result of an explicit community/governance action (for example, a suspension vote) rather than an automatic calculation; grace expiry alone sends users back to S0.
 
+Suspension policy:
+
+- **Freeze (default):** block new outbound votes from S3 users; keep their existing outbound votes in place so dependents stay stable while remediation happens.
+- **Withdraw (escalation):** retire outbound votes on suspension to cut influence; dependents must recover via other external votes or grace. Use this for confirmed abuse.
+
 ---
 
 ## Algorithm
@@ -217,7 +222,9 @@ FUNCTION passes_externality(U, G):
     return false
 
 FUNCTION accept_vote(voter, target, G):
-    # Enforce outbound cap before creating the edge
+    # Enforce outbound cap and suspension freeze before creating the edge
+    if is_suspended(voter):   # freeze policy: suspended users cannot cast new votes
+        REJECT_VOTE()
     if not can_cast_vote(voter):
         REJECT_VOTE()
     CREATE_EDGE(voter, target)
