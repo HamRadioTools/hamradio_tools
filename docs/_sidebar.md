@@ -26,7 +26,7 @@
 - **Protocol**
   - [Message formats](protocol/message-formats.md)
   - [DX spot schema](protocol/dx-spot-schema.md)
-  - [Filtering & blacklist engine](protocol/filter-blacklist.md)
+  - [Filtering & blacklist](protocol/filter-blacklist.md)
   - [gRPC hooks](protocol/grpc-hooks.md)
   - [MQTT QoS behaviour](protocol/qos-behaviour.md)
 
@@ -38,6 +38,7 @@
 - **Security**
   - [Security overview](security/overview.md)
   - [Grandfathering model](security/grandfathering-model.md)
+  - [Grandfathering maths](security/grandfathering-maths.md)
   - [Abuse mitigation](security/abuse-mitigation.md)
   - [Authentication](security/authentication.md)
   - [Authorization](security/authorization.md)
