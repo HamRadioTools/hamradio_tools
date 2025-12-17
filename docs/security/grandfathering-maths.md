@@ -134,8 +134,9 @@ Entry to S3 should be the result of an explicit community/governance action (for
 
 Suspension policy:
 
+- Suspensions are routine lifecycle events; treat them as an expected phase of the model rather than an anomaly.
 - **Freeze (default):** block new outbound votes from S3 users; keep their existing outbound votes in place so dependents stay stable while remediation happens.
-- **Withdraw (escalation):** retire outbound votes on suspension to cut influence; dependents must recover via other external votes or grace. Use this for confirmed abuse.
+- **Withdraw (escalation):** retire outbound votes on suspension to cut influence; dependents must recover via other external votes or grace. Use of this action is for confirmed abuse.
 
 ---
 
