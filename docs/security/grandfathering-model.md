@@ -1,4 +1,4 @@
-# Grandfathering Security Model
+# Grandfathering security model
 
 RCLDX uses a social trust model inspired by the idea of 'grandfathering' in tight communities.
 
@@ -8,11 +8,12 @@ Every active user with the ability to publish spots must be 'sponsored' by at le
 
 ## Rules
 
-- A user becomes fully active once they have **≥ 2 valid sponsors**.
+- A user becomes fully active once they have **2 valid sponsors**.
 - Sponsors can withdraw their support at any time.
 - If a user falls below 2 sponsors, they are automatically downgraded to **read-only**.
+- Users that have emited 2 votes will later receive a third one.
 
-Unlike other ham radio community services, many of which claim to be universally accessible but are effectively restricted for various reasons, RCLDX will always remain accessible to any user in read-only mode, even without grandfather support. This ensures that operators can continue to use and benefit from the cluster during their radio sessions without being impeded.
+Read the [complete architectural design](security/grandfathering-maths.md) of the **Grandfathering Model** in its individual space, [in this article](security/grandfathering-maths.md).
 
 ## Benefits
 
