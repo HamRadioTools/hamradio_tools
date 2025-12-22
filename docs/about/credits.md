@@ -14,7 +14,7 @@ Thanks to all operators who provided feedback, shared ideas, and tested early pr
 
 ### Individuals
 
-- KI2D, Sebastián Delmont, for his support, contacts sharing and ideas regarding spot classification, split operation, verified accounts and shadown ban techniques.
+- KI2D, Sebastián Delmont, for his support, contacts sharing and ideas regarding spot classification, split operation, verified accounts and shadow ban technique use cases.
 
 ### Amaterur Radio projects & services
 
