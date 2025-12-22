@@ -1,58 +1,168 @@
 # DX spot schema
 
-Last updated: **2025-12-12**  
+Last updated: **2025-12-22**  
 Protocol Version: **v1-beta**
 
 ---
 
-This document defines the official DX Spot message format used in the RCLDX MQTT Cluster.
+This document defines the official DX spot message format used in the RCLDX MQTT Cluster.
 
-The goal is to define a minimal, stable, easy-to-generate structure while providing unlimited extensibility through the extended block.
+The goal is to define a minimal, stable, easy-to-generate structure while providing unlimited extensibility through the spot.extended block.
 
 ---
 
-## 1. DX Spot message structure
+## 0. Cluster identifiers and event type
 
-A DX spot message always consists of two blocks:
+These fields are added by the cluster after a spot enters on `input/spot`. They do not come from client software.
 
-### 1.1. Required block: spot
+| Field        | Description                                                                                                                                                                          |
+| ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `id7`        | Event identifier (UUIDv7). Unique per reception. Used for ordering, tracing and auditability across the entire pipeline.                                                             |
+| `hid`        | Hash identifier. Cryptographic hash of the normalized payload, used for integrity verification and anti-tamper checks between trusted services.                                      |
+| `sid`        | Spot identity signature. Deterministic identifier that groups multiple receptions referring to the same underlying spot. Used for de-duplication, corrections and deletion semantics.|
+| `event_type` | Event lifecycle indicator. Defines how this message must be interpreted by consumers. Allowed values are: spot_add, spot_patch, spot_dele(te), always lowercase.                     |
 
-Contains all core radio information required to describe a DX spot:
+### Semantic rules and guarantees
+
+#### `id7` — event identity
+  
+- Generated once per received spot.
+- Immutable for the lifetime of the message.
+- Uniquely identifies this specific reception, even if the spot is a duplicate.
+- Enables strict event ordering, replay and forensic auditing.
+
+#### `hid` — payload integrity
+
+- Derived from a canonical, normalized representation of the payload.
+- Allows trusted components to verify message integrity, detect tampering, confirm payload equivalence across pipeline stages.
+- May be recalculated internally by trusted services, but never altered by clients.
+
+#### `sid` — spot identity and evolution key
+
+- Represents the conceptual spot, not a single reception.
+- Multiple `id7` events may legitimately share the same `sid`.
+- All operations that deduplicate, amend, or delete a spot are keyed by `sid`.
+- `sid` is the anchor that allows a spot to evolve over time without mutating past events.
+
+#### event_type — lifecycle semantics
+
+Defines how consumers must apply this event:
+
+- `spot_add`: Introduces a new spot or an additional reception of an existing one.
+- `spot_patch`: Modifies or corrects the current canonical representation of a spot identified by `sid` (e.g. wrong frequency, mode, grid or metadata).
+- `spot_dele(te)`: Explicitly retracts a spot identified by `sid` from the active cluster view.
+
+> **NOTE:**  
+> Event streams are append-only in nature; corrections and deletions are expressed as new events,
+never by altering previously published messages.
+
+### Design intent (or, why this exists?)
+
+This identifier model allows the cluster to:
+
+- Preserve a pure event stream (MQTT remains append-only).
+- Eliminate duplicates without losing provenance.
+- Apply corrections and deletions deterministically.
+- Support both:
+  - live streaming consumers (MQTT subscribers),
+  - state-based consumers (WebSocket/UI clients using materialized views).
+- Maintain auditability, traceability and trust across distributed systems.
+
+---
+
+## 1. DX spot message structure
+
+A DX spot message enters the cluster as a `spot` object on `input/spot`. The cluster then enriches it with envelope fields and publishes to `output/spot` and the `core/spot/...` topics described in [Message formats](protocol/message-formats.md).
+
+Ingress example (published to `input/spot`):
 
 ```json
 {
   "spot": {
-    "de": "EA1HET",
-    "dx": "DL0XXX",
-    "src": "manual",
+
+    "identity": {
+      "de": "EA1HET",
+      "dx": "DL0XXX",
+      "src": "manual"
+    },
+    
     "radio": {
-      "comment": "CQ DX",
-      "freq": 14205.0,
+      "freq": 14005.0,
       "mode": "CW",
-      "band": "20m"
-    }
-  },
-  "extended": { }
+      "de_grid": "IN73dm"
+    },
+    
+    "extended": { }
+  
+  }
 }
 ```
 
-### 1.2. Optional block: `extended`
-
-Holds additional optional information such as contest metadata, RBN data, satellite data, activation references, etc...
+Normalized example (published to `output/spot` and `core/spot/...`):
 
 ```json
-"extended": {
-  "qso": { ... },
-  "contest": { ... },
-  "rbn": { ... },
-  "bird": { ... },
-  "activations": [ ... ]
-  ...
+{
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
+  "spot": {
+
+    "identity": {
+      "de": "EA1HET",
+      "dx": "DL0XXX",
+      "src": "manual"
+    },
+    
+    "radio": {
+      "freq": 14005.0,
+      "mode": "CW",
+      "de_grid": "IN73dm"
+    },
+    
+    "extended": { }
+  
+  }
 }
 ```
 
-The concept, which is yet pending to be put against the cords with  everyday practice, is to introduce an extended data block that can carry additional information beyond the standard spot data.
-This extended block would serve two main purposes:
+The `spot.extended` object holds optional information such as contest metadata, RBN data, satellite data and activation references among others. This is flexible solution to envision future usages.
+
+```json
+{
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
+  "spot": {
+
+    "identity": {
+      "de": "EA1HET",
+      "dx": "DL0XXX",
+      "src": "manual"
+    },
+  
+    "radio": {
+      "freq": 14005.0,
+      "mode": "CW",
+      "de_grid": "IN73dm"
+    },
+  
+    "extended": {
+      "qso": { ... },
+      "contest": { ... },
+      "rbn": { ... },
+      "bird": { ... },
+      "activations": [ ... ]
+      ...
+    }
+
+  }
+}
+```
+
+The concept, which is yet pending to be put against the cords with  everyday practice, is to introduce a spot.extended data block that can carry additional information beyond the standard spot data.
+This spot.extended block would serve two main purposes:
 
 - Allow the RCLDX cluster to automatically recognize common, recurring block types (e.g., `contest`, `rbn`, `bird` for satellite QSOs, `activations` for POTA/SOTA/BOTA/WWFF/Lighthouses, etc...).
 
@@ -61,31 +171,47 @@ This extended block would serve two main purposes:
 **NOTE**:  
 When RCLDX archives historical spot data, it will permanently store the officially recognized blocks (like those listed above), but it will not preserve the custom additional blocks added by third-party logbook software.
 
-In this way, the extended block becomes a simple, standardized “pipe” through the cluster that allows different logging programs to exchange useful extra information between their users without requiring complex individual integrations.Not saving this data is essential for making it ephemeral, which is meant to be a strategic decision.
+In this way, the spot.extended block becomes a simple, standardized “pipe” through the cluster that allows different logging programs to exchange useful extra information between their users without requiring complex individual integrations. Not saving this data is essential for making it ephemeral, which is meant to be a strategic decision.
 
-## 2. Specification of the spot Block
+## 2. Specification of the spot message
 
-### 2.1. Main fields
+### 2.1. Envelope fields
 
-| Field   | Type   | Required | Description                                                          |
-| ------- | ------ | -------- | -------------------------------------------------------------------- |
-| `de`    | string | Yes      | Callsign or identifier of the spotter.                               |
-| `dx`    | string | Yes      | Callsign of the station being spotted.                               |
-| `src`   | string | Yes      | Source of the spot: `manual`, `QLog`, `N1MM`, `rbn`, `skimmer`, etc. |
-| `radio` | object | Yes      | Core RF information.                                                 |
+| Field        | Type   | Required | Description                                                |
+| ------------ | ------ | -------- | ---------------------------------------------------------- |
+| `id7`        | string | Yes      | UUIDv7 assigned by the cluster on ingress.                 |
+| `hid`        | string | Yes      | Hash id assigned by the cluster on ingress.                |
+| `sid`        | string | Yes      | Spot identity signature for dedupe and corrections.        |
+| `event_type` | string | Yes      | Event type (`spot_add`, `spot_patch`, `spot_dele`).        |
+| `spot`       | object | Yes      | Spot payload (identity, radio, extended).                  |
 
-### 2.2. Fields inside radio
+### 2.2. Fields inside spot
 
-| Field     | Type   | Required | Description                                                  |
-| --------- | ------ | -------- | ------------------------------------------------------------ |
-| `comment` | string | No       | Short free-text comment.                                     |
-| `freq`    | float  | Yes      | Frequency in MHz (decimal required).                         |
-| `mode`    | string | Yes      | Mode of operation: `CW`, `SSB`, `FT8`, `RTTY`, etc.          |
-| `band`    | string | Yes      | Amateur band in the `20m`, `40m`, `6m`, `2m`, `70cm` format. |
+| Field      | Type   | Required | Description                                       |
+| ---------- | ------ | -------- | ------------------------------------------------- |
+| `identity` | object | Yes      | Communication endpoints and source metadata.      |
+| `radio`    | object | Yes      | Core RF information.                              |
+| `extended` | object | Yes      | Optional namespaces (empty object allowed).       |
 
-## 3. The `extended` block
+### 2.3. Fields inside spot.identity
 
-The extended block provides namespaced optional fields for specialized use cases:
+| Field | Type   | Required | Description                                                          |
+| ----- | ------ | -------- | -------------------------------------------------------------------- |
+| `de`  | string | Yes      | Callsign or identifier of the spotter.                               |
+| `dx`  | string | Yes      | Callsign of the station being spotted.                               |
+| `src` | string | Yes      | Source of the spot: `manual`, `ham2k`, `n1mm`, `rbn`, `skimmer`, ... |
+
+### 2.4. Fields inside spot.radio
+
+| Field     | Type   | Required | Description                                   |
+| --------- | ------ | -------- | --------------------------------------------- |
+| `freq`    | float  | Yes      | Frequency in MHz (decimal required).          |
+| `mode`    | string | Yes      | Mode of operation: `CW`, `SSB`, `FT8`, etc.   |
+| `de_grid` | loc    | Yes      | Maidenhead grid of the DE station (nullable). |
+
+## 3. The `spot.extended` block
+
+The `spot.extended` object provides namespaced optional fields for specialized use cases:
 
 - QSO: typical data exchanged in a traditional QSO.
 - Contest: contest-specific metadata (CQ WW, ARRL DX, others).
@@ -93,48 +219,82 @@ The extended block provides namespaced optional fields for specialized use cases
 - Bird: Satellite (“bird”) information.
 - Activations: POTA, SOTA, IOTA, BOTA, WWFF, etc...
 
-Any combination of this extended and recognized by RCLDX cluster data blocks are allowed. Other blocks are allowed as well, but should be injected by the logbook deelopers and RCLDX won't tamper with them, just will forward them ephemerally.
+Any combination of these recognized blocks is allowed. Other blocks are allowed as well, but should be injected by logbook developers. RCLDX will not tamper with them, and will only forward them ephemerally.
 
 ### 3.1 Extended → QSO
 
 The block `qso` is meant to carry on the typical exchanges in SSB, CW or Digi. It is controlled the type of data the carry out (integers) but it's not enforced the length to provide space for developers to adapt their software to real life exchanges. In that sense, RCLDX cluster is aware certain activations require a specific exchange, thus why the `activations` block has been defined apart of this one. See more details in `activations` block below.
 
 ```json
-"extended": {
-  "qso": {
-    "rst_s": 59,
-    "rst_r": 59
+{
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
+  
+  "spot": {
+    "identity": {
+      "de": "EA1HET",
+      "dx": "DL0XXX",
+      "src": "manual"
+    },
+    
+    "radio": {
+      "freq": 14005.0,
+      "mode": "CW",
+      "de_grid": "IN73dm"
+    },
+
+    "extended": {
+      "qso": {
+        "rst_s": 59,
+        "rst_r": 59,
+        "comment": "Thanks for QSO. 73"
+      }
+    }
+
   }
 }
 ```
 
 Fields:
 
-| Field    | Type   | Required | Description                         |
-| -------- | ------ | ---------| ----------------------------------- |
-| `rst_s`  | int    | No       | RST (radio, signal, tone) sent.     |
-| `rst_r`  | int    | No       | RST (radio, signal, tone) received. |
+| Field     | Type   | Required | Description                         |
+| --------- | ------ | ---------| ----------------------------------- |
+| `rst_s`   | int    | No       | RST (radio, signal, tone) sent.     |
+| `rst_r`   | int    | No       | RST (radio, signal, tone) received. |
+| `comment` | string | No       | Short free-text comment.            |
 
 Full example:
 
 ```json
 {
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
   "spot": {
-    "de": "EA1HET",
-    "dx": "K3LR",
-    "src": "SmartLogger",
+    
+    "identity": {
+      "de": "EA1HET",
+      "dx": "K3LR",
+      "src": "ham2k"
+    },
+    
     "radio": {
-      "comment": "Calling CQ Europe",
       "freq": 14210.0,
       "mode": "SSB",
-      "band": "20m",
+      "de_grid": "IN73dm"
+    },
+
+    "extended": {
+      "qso": {
+        "rst_s": 59,
+        "rst_r": 59,
+        "comment": "Calling CQ Europe"
+      }
     }
-  },
-  "extended": {
-    "qso": {
-      "rst_s": 59,
-      "rst_r": 59
-    }
+
   }
 }
 ```
@@ -146,26 +306,48 @@ The `contest` block is defined with the specific purpose to carry out contest re
 That strategy provides the necessary flexibility to individuals and software developers to carry out information via cluster without mixing the fields they should use.
 
 ```json
-"extended": {
-  "contest": {
-    "name": "CQ WW SSB",
-    "rst_s": 59,
-    "rst_r": 59,
-    "xch_s": "123",
-    "xch_r": "54"
+{
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
+  "spot": {
+
+    "identity": {
+      "de": "EA1HET",
+      "dx": "DL0XXX",
+      "src": "manual"
+    },
+    
+    "radio": {
+      "freq": 14205.0,
+      "mode": "SSB",
+      "de_grid": "IN73dm"
+    },
+
+    "extended": {
+      "contest": {
+        "name": "CQ WW SSB",
+        "rst_s": 59,
+        "rst_r": 59,
+        "xch_s": "123",
+        "xch_r": "54"
+      }
+    }
+
   }
 }
 ```
 
 Fields:
 
-| Field    | Type   | Required | Description                         |
-| -------- | ------ | ---------| ----------------------------------- |
-| `name`   | string | Yes(*)   | ADIF-normalized(**) contest name.       |
-| `rst_s`  | int    | No       | RST (radio, signal, tone) sent.     |
-| `rst_r`  | int    | No       | RST (radio, signal, tone) received. |
-| `xch_s`  | string | No       | Context exchange sent.              |
-| `xch_r`  | string | No       | Context exchange received.          |
+| Field   | Type   | Required | Description                         |
+| ------- | ------ | ---------| ----------------------------------- |
+| `name`  | string | Yes(*)   | ADIF-normalized(**) contest name.   |
+| `rst_s` | int    | No       | RST (radio, signal, tone) sent.     |
+| `rst_r` | int    | No       | RST (radio, signal, tone) received. |
+| `xch_s` | string | No       | Context exchange sent.              |
+| `xch_r` | string | No       | Context exchange received.          |
 
 (*) *If the block is to be used, the name becomes compulsory.*.  
 (**) ADIF contest names are regularly checked to ensure compliance.
@@ -174,28 +356,42 @@ Full example:
 
 ```json
 {
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
   "spot": {
-    "de": "EA1HET",
-    "dx": "K3LR",
-    "src": "N1MM",
+
+    "identity": {
+      "de": "EA1HET",
+      "dx": "K3LR",
+      "src": "Ham2K"
+    },
+    
     "radio": {
-      "comment": "CQ TEST K3LR TEST",
       "freq": 14010.0,
       "mode": "CW",
-      "band": "20m",
+      "de_grid": "IN73dm"
+    },
+    
+    "extended": {
+      "contest": {
+        "name": "CQ WW CW",
+        "rst_s": 59,
+        "rst_r": 59,
+        "xch_s": "14",
+        "xch_r": "54"
+      }
     }
-  },
-  "extended": {
-    "contest": {
-      "name": "CQ WW CW",
-      "rst_s": 59,
-      "rst_r": 59,
-      "xch_s": "14",
-      "xch_r": "54"
-    }
+
   }
 }
 ```
+
+**NOTE**:  
+Many contest stations are reluctant to share full contest exchange data because it is considered strategic for multiplier hunting and rate optimization. Making this data public can reveal operating tactics that teams want to keep private during the contest.
+
+In the future, this block can be offered with masked data visible only to the contest team (and potentially the contest organizer), similar in spirit to how some LoTW data is protected. This preserves collaboration within a multi-operator effort while limiting broader disclosure.
 
 ### 3.3 Extended → RBN (Reverse Beacon Network)
 
@@ -206,14 +402,36 @@ Fortunately or unfortunately, the project is based upon operational modes that c
 Depending on the operational mode (CW, RTTY, FT4 or FT8) the potential spot might incorporate more or less information, and for that reaon the fields in this block are flexible. In that sense, it is necesary to mention that RCLDX cluster understands that if at some point some data it's not properly populated it's due to a problem with the data source, not a RCLDX glitch.
 
 ```json
-"extended": {
-  "rbn": {
-    "snr_db": 12,
-    "rst_s": null,
-    "rst_r": null,
-    "wpm": 21,
-    "bps": null,
-    "grid": "IN55EM"
+{
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
+  "spot": {
+
+    "identity": {
+      "de": "RBN-SKIMMER-123",
+      "dx": "EA1HET",
+      "src": "rbn"
+    },
+    
+    "radio": {
+      "freq": 14074.67,
+      "mode": "RTTY",
+      "de_grid": null
+    },
+    
+    "extended": {
+      "rbn": {
+        "snr_db": 12,
+        "rst_s": null,
+        "rst_r": null,
+        "wpm": 21,
+        "bps": null,
+        "grid": "IN55EM"
+      }
+    }
+
   }
 }
 ```
@@ -233,26 +451,35 @@ Full example:
 
 ```json
 {
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
   "spot": {
-    "de": "RBN-SKIMMER-123",
-    "dx": "EA1HET",
-    "src": "rbn",
+
+    "identity": {
+      "de": "RBN-SKIMMER-123",
+      "dx": "EA1HET",
+      "src": "rbn"
+    },
+    
     "radio": {
-      "comment": "",
       "freq": 14074.67,
       "mode": "RTTY",
-      "band": "20m"
+      "de_grid": null
+    },
+
+    "extended": {
+      "rbn": {
+        "snr_db": 19,
+        "rst_s": null,
+        "rst_r": null,
+        "wpm": null,
+        "bps": 45,
+        "grid": "IN55EM"
+      }
     }
-  },
-  "extended": {
-    "rbn": {
-      "snr_db": 19,
-      "rst_s": null,
-      "rst_r": null,
-      "wpm": null,
-      "bps": 45,
-      "grid": "IN55EM"
-    }
+
   }
 }
 ```
@@ -260,46 +487,77 @@ Full example:
 ### 3.4 Extended → BIRD (satellite)
 
 ```json
-"extended": {
-  "bird": {
-    "name": "AO-7",
-    "grid_s": "IN55",
-    "grid_r": "IN89"
+{
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
+  "spot": {
+
+    "identity": {
+      "de": "EA1HET",
+      "dx": "DL3XYZ",
+      "src": "manual"
+    },
+
+    "radio": {
+      "freq": 145950.0,
+      "mode": "SSB",
+      "de_grid": "IN73dm"
+    },
+    
+    "extended": {
+      "bird": {
+        "name": "AO-7",
+        "grid_s": "IN55",
+        "grid_r": "IN89"
+      }
+    }
+  
   }
 }
 ```
 
 Fields:  
 
-| Field    | Description                       |
-| -------- | --------------------------------- |
-| `name`   | Satellite (“bird”) name.          |
-| `grid_s` | Grid of the transmitting station. |
-| `grid_r` | Grid of the receiving station.    |
+| Field     | Description                       |
+| --------- | --------------------------------- |
+| `name`    | Satellite (“bird”) name.          |
+| `grid_s`  | Grid of the transmitting station. |
+| `grid_r`  | Grid of the receiving station.    |
+| `comment` | Short free-text comment.          |
 
 Full example:
 
 ```json
 {
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
   "spot": {
-    "de": "EA1HET",
-    "dx": "DL3XYZ",
-    "src": "manual",
+  
+    "identity": {
+      "de": "EA1HET",
+      "dx": "DL3XYZ",
+      "src": "manual"
+    },
+    
     "radio": {
-      "comment": "QSO via AO-7",
       "freq": 145950.0,
       "mode": "SSB",
-      "band": "2m",
-      "rst_s": "59",
-      "rst_r": "59"
+      "de_grid": "IN73dm"
+    },
+
+    "extended": {
+      "bird": {
+        "name": "AO-7",
+        "grid_s": "IN73",
+        "grid_r": "JO31",
+        "comment": "QSO via AO-7"
+      }
     }
-  },
-  "extended": {
-    "bird": {
-      "name": "AO-7",
-      "grid_s": "IN73",
-      "grid_r": "JO31"
-    }
+
   }
 }
 ```
@@ -307,13 +565,35 @@ Full example:
 ### 3.5 Extended → ACTIVATIONS (POTA/SOTA/IOTA/BOTA)
 
 ```json
-"extended": {
-  "activations": [
-    { "program": "POTA", "ref": "EU-123" },
-    { "program": "SOTA", "ref": "EA1/AT-001" },
-    { "program": "IOTA", "ref": "AF-001" },
-    { "program": "BOTA", "ref": "B/EA-0001" }
-  ]
+{
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
+  "spot": {
+
+    "identity": {
+      "de": "EA1HET",
+      "dx": "F4ABC",
+      "src": "manual"
+    },
+
+    "radio": {
+      "freq": 14244.0,
+      "mode": "SSB",
+      "de_grid": "IN73dm"
+    },
+
+    "extended": {
+      "activations": [
+        { "program": "POTA", "ref": "EU-123" },
+        { "program": "SOTA", "ref": "EA1/AT-001" },
+        { "program": "IOTA", "ref": "AF-001" },
+        { "program": "BOTA", "ref": "B/EA-0001" }
+      ]
+    }
+
+  }
 }
 ```
 
@@ -323,26 +603,36 @@ Fields:
 | --------- | --------------------------------------------------- |
 | `program` | Activation program (POTA, SOTA, IOTA, BOTA, WWFF…). |
 | `ref`     | Official program reference.                         |
+| `comment` | Short free-text comment.                            |
 
 Full example:
 
 ```json
 {
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
   "spot": {
-    "de": "EA1HET",
-    "dx": "F4ABC",
-    "src": "manual",
+    
+    "identity": {
+      "de": "EA1HET",
+      "dx": "F4ABC",
+      "src": "manual"
+    },
+    
     "radio": {
-      "comment": "Portable activation",
       "freq": 14244.0,
       "mode": "SSB",
-      "band": "20m"
+      "de_grid": "IN73dm"
+    },
+    
+    "extended": {
+      "activations": [
+        { "program": "POTA", "ref": "EA-1234", "comment": "Portable activation" }
+      ]
     }
-  },
-  "extended": {
-    "activations": [
-      { "program": "POTA", "ref": "EA-1234" }
-    ]
+  
   }
 }
 ```
@@ -353,18 +643,27 @@ Full example:
 
 ```json
 {
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
   "spot": {
-    "de": "EA1HET",
-    "dx": "DL0XYZ",
-    "src": "manual",
+  
+    "identity": {
+      "de": "EA1HET",
+      "dx": "DL0XYZ",
+      "src": "manual"
+    },
+  
     "radio": {
-      "comment": "Good signal",
       "freq": 7144.0,
       "mode": "SSB",
-      "band": "40m"
-    }
-  },
-  "extended": { }
+      "de_grid": "IN73dm"
+    },
+  
+    "extended": { }
+  
+  }
 }
 ```
 
@@ -372,21 +671,31 @@ Full example:
 
 ```json
 {
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
   "spot": {
-    "de": "RBN-SKIMMER-55",
-    "dx": "EA1HET",
-    "src": "rbn",
+  
+    "identity": {
+      "de": "RBN-SKIMMER-55",
+      "dx": "EA1HET",
+      "src": "rbn"
+    },
+  
     "radio": {
       "freq": 14018.0,
       "mode": "CW",
-      "band": "20m"
+      "de_grid": null
+    },
+  
+    "extended": {
+      "rbn": { "snr_db": 32, "grid": "IO91" },
+      "activations": [
+        { "program": "SOTA", "ref": "EA1/CR-001" }
+      ]
     }
-  },
-  "extended": {
-    "rbn": { "snr_db": 32, "grid": "IO91" },
-    "activations": [
-      { "program": "SOTA", "ref": "EA1/CR-001" }
-    ]
+  
   }
 }
 ```
@@ -395,38 +704,45 @@ Full example:
 
 ```json
 {
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
   "spot": {
-    "de": "EA1HET",
-    "dx": "K2ABC",
-    "src": "manual",
+  
+    "identity": {
+      "de": "EA1HET",
+      "dx": "K2ABC",
+      "src": "manual"
+    },
+  
     "radio": {
-      "comment": "AO-91 + POTA activation",
       "freq": 435250.0,
       "mode": "FM",
-      "band": "70cm"
+      "de_grid": "IN73dm"
+    },
+  
+    "extended": {
+      "bird": { "name": "AO-91", "comment": "AO-91 pass" },
+      "activations": [
+        { "program": "POTA", "ref": "EA-5678", "comment": "AO-91 + POTA activation" }
+      ]
     }
-  },
-  "extended": {
-    "bird": { "name": "AO-91" },
-    "activations": [
-      { "program": "POTA", "ref": "EA-5678" }
-    ]
+  
   }
 }
 ```
 
 ## 5. Validation rules
 
-1. If spot exists, extended must exist (empty object allowed).
-1. freq must always be a decimal MHz float.
-1. band must follow the "20m", "40m", "2m", "70cm" format.
-1. Namespaces inside extended must not collide:  
-
-   - contest twice
-   - contest + bird + activations together
-
-1. extended.activations must be an array.
-1. Unknown namespaces in extended are allowed (forward-compatible).
+1. `id7`, `hid`, `sid` and `event_type` must exist at the top level on normalized outputs. They are introduced by the system, not the developers.
+1. `event_type` must be one of: `spot_add`, `spot_patch`, `spot_dele`.
+1. `spot.extended` must exist (empty object allowed).
+1. `spot.radio.de_grid` must always be present (nullable).
+1. `spot.radio.freq` must always be a decimal MHz float.
+1. Namespaces inside `spot`.`extended` must not collide in name.
+1. `spot.extended.activations` must be an array.
+1. Unknown namespaces in `spot.extended` are allowed (forward-compatible).
 
 ## 6. Forward compatibility
 
@@ -437,4 +753,4 @@ This schema is explicitly designed for future expansion:
 - new activation programs,
 - new propagation/telemetry extensions (e.g., atmospheric ducting, EME, meteor scatter).
 
-A new extension simply adds another namespace under extended, without breaking existing clients.
+Any new extension simply adds another namespace under `spot.extended`, without breaking existing clients.

@@ -25,7 +25,7 @@ The system currently defines the following message types:
 | ------------- | ---------------------------------------------------------- |
 | **Spot**      | Standard amateur-radio DX spot messages (core + extended). |
 | **Chat**      | Human chat messages (1:1, band-wide, global).              |
-| **Weather**   | Space-weather and ground-weather                           |
+| **Weather**   | Space / ground weather                                     |
 | **System**    | Cluster-internal system announcements.                     |
 
 **DX Spots** are, by far, the most common message, and have a dedicated full specification in the [DX spot schema](protocol/dx-spot-schema.md) section.
@@ -34,40 +34,144 @@ The system currently defines the following message types:
 
 ## 2. General message structure
 
-Every message has the same envelope pattern:
+Message envelopes are type-specific. Most message families use a single root key (`chat`, `wx`, `system`), while DX spots include a transport envelope with identifiers plus a `spot` object.
+
+Spot envelope (normalized):
 
 ```json
 {
-  "<type>": { ... },
-  "extended": { ... }  // optional
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
+  "spot": {
+
+    "identity": {
+      "de": "EA1HET",
+      "dx": "DL0XXX",
+      "src": "manual"
+    },
+
+    "radio": {
+      "freq": 14205.0,
+      "mode": "CW",
+      "de_grid": "IN73dm"
+    },
+
+    "extended": { }
+
+  }
 }
 ```
 
-The `<type>` key defines the root object:
+Notes:
 
-- "spot" for DX spots.
-- "chat" for chat messages.
-- "wx" for weather messages.
-- "system" for system events.
-
-The `extended` block:
-
-- may exist (empty object allowed).
-- may contain one or more namespaced sub-blocks.
-- preserves forward compatibility for future programs and initiatives.
-- provides an object developers can use for their own purposes.
-
-Over time, depending on the degree of adoption on this initiative, the mount of `<type>` objects would increase to cover other message formats.
+- `event_type` is always lowercase.
+- `id7`, `hid`, `sid`, `event_type` are added by the cluster once a raw spot enters `input/spot`.
+- The `spot` object carries identity, radio, and extended data (see DX spot schema).
 
 ---
 
-## 3. Spot messages (DX spots)
+## 3. Spot routing topics (textbook view)
+
+This section explains the routing model as a fixed contract between producers, the cluster and consumers. The contract is designed for speed and predictability: routing is decided by the topic string alone, with no payload inspection required by clients.
+
+The cluster accepts raw spots on `input/spot`, enriches and normalizes them, then publishes to two outputs:
+
+1. `output/spot` (global firehose, normalized)
+2. `core/spot/{src_region}/{dst_region}/{band}/{mode_norm}/{submode}` (curated routing topics)
+
+### 3.1 Why two outputs exist
+
+The firehose (`output/spot`) is the simplest path: specialists can consume everything and apply their own filtering. The curated topics exist for everyone else, providing a stable and compact routing matrix where wildcards can express common filters without custom parsing logic.
+
+This split keeps the system open to advanced use while remaining friendly to lightweight clients.
+
+### 3.2 Topic format and meaning
+
+Final topic format (data only, no version segment):
+
+```mqtt
+core/spot/{src_region}/{dst_region}/{band}/{mode_norm}/{submode}
+```
+
+Example:
+
+```mqtt
+core/spot/na/eu/20m/digi/ft8
+```
+
+This means: a spot originating in North America, pointing to Europe, on 20 meters, digital mode, submode FT8.
+
+The topic string is the routing index. It is designed to be deterministic and human-readable while remaining easy for MQTT brokers and clients to match.
+
+### 3.3 Locked vocabularies
+
+- Region vocabulary (lowercase, bounded): `eu` `na` `sa` `as` `af` `oc` `unk`
+- Band vocabulary (lowercase, canonical):
+  - HF: `160m` `80m` `60m` `40m` `30m` `20m` `17m` `15m` `12m` `10m`  
+  - VHF/UHF: `6m` `4m` `2m` `70cm` `23cm`
+  - SHF: `13cm` `9cm` `6cm` `3cm` `1.25cm` `6mm` `4mm` `2.5mm` `2mm` `1mm`
+- Mode normalization (routing layer, lowercase only): `cw` `ssb` `am` `fm` `digi` `other`
+- Submode (lowercase ADIF-like tokens): `ft8` `ft4` `rtty` `psk` `jt65` `js8` ...
+
+Rules:
+
+- If submode is known, use the exact token.
+- If submode is unknown, use `any`.
+
+Valid example:
+
+```mqtt
+core/spot/eu/na/40m/digi/any
+```
+
+### 3.4 Subscription patterns
+
+The topic format is built for wildcard subscriptions:
+
+- All EU → NA propagation: `core/spot/eu/na/#`
+- EU → NA, CW on any band: `core/spot/eu/na/+/cw/+`
+- Any → EU, 20 m DIGI: `core/spot/+/eu/20m/digi/+`
+- Global FT8 only: `core/spot/+/+/+/digi/ft8`
+
+Clients can choose narrow or broad subscriptions without inspecting JSON payloads.
+
+### 3.5 Region derivation (locked)
+
+Routing regions are derived deterministically:
+
+```bash
+src_region =
+  if spot.radio.de_grid exists → derived from grid
+  else if spot.identity.de exists → derived from callsign prefix
+  else → "unk"
+```
+
+The same rule applies to `dst_region` using the DX callsign (callsign prefix fallback, else `unk`).
+
+This rule is auditable and repeatable, which is important for analytics and long-term consistency.
+
+### 3.6 Payload is still the source of truth
+
+Topics provide the fast path, but the payload is the authoritative record. It must include:
+
+- original frequency
+- exact ADIF mode
+- grids (when present)
+- `id7`, `hid`, `sid`
+
+This enables corrections, audits, analytics and reclassification later without breaking the routing contract.
+
+---
+
+## 4. Spot messages (DX spots)
 
 DX spots are the most important message type on the RCLDX cluster. See [DX spot schema](protocol/dx-spot-schema.md) for the full specification details, field definitions and examples.
 
 ---
 
-## 4. Chat messages
+## 5. Chat messages
 
 Chat messages allow clusters, clubs and users to communicate in near real time.
 
@@ -79,7 +183,7 @@ They support three scopes:
 | **band** | Message broadcast to users monitoring a specific band. |
 | **all**  | Message broadcast globally.                            |
 
-### 4.1. 1-to-1 chat
+### 5.1. 1-to-1 chat
 
 ```json
 {
@@ -87,29 +191,25 @@ They support three scopes:
     "de": "EA1HET",
     "dx": "DL0XXX",
     "scope": "1to1",  // 1to1 | all | band
-    "msg": {
-      "comment": "Fancy a coffe?"
-    }
+    "msg": "Fancy a coffe?"
   }
 }
 ```
 
-### 4.2. Global chat
+### 5.2. Global chat
 
 ```json
 {
   "chat": {
     "de": "EA1HET",
-    "dx": "all",
-    "scope": "all",  // all | band | 1to1
-    "msg": {
-      "comment": "Seeking sched for 160m tomorrow."
-    }
+    "dx": "world",
+    "scope": "world",  // all | band | 1to1
+    "msg": "Seeking sched for 160m tomorrow."
   }
 }
 ```
 
-### 4.3. Band-wide chat
+### 5.3. Band-wide chat
 
 ```json
 {
@@ -117,18 +217,14 @@ They support three scopes:
     "de": "EA1HET",
     "dx": "20m",
     "scope": "band",  // band | 1to1 | all  
-    "msg": {
-      "comment": "Impressive opening North-South to AF"
-    }
+    "msg": "Impressive opening North-South to AF"
   }
 }
 ```
 
-The `extended` block may be present, but it's normally unused for chat.
-
 ---
 
-## 5. Weather messages
+## 6. Weather messages
 
 Weather messages (key: wx) provide space weather and/or local weather from ham radio well-known services, individual stations or networks.
 
@@ -139,8 +235,11 @@ Example: combined space & ground weather
 ```json
 {
   "wx": {
-    "de": "W5MMW",
-    "dx": "all",
+
+    "identity": {
+      "de": "W5MMW",
+      "dx": "all"
+    },  
 
     "solar": {    
       "sfi": 200,
@@ -176,8 +275,12 @@ Example: ground-weather only (personal station)
 ```json
 {
   "wx": {
-    "de": "EA1HET",
-    "dx": "all",
+
+    "identity": {
+      "de": "W5MMW",
+      "dx": "all"
+    },  
+
     "ground": {
       "gridloc": "IN43im",
       "temp_c": 21.4,
@@ -185,12 +288,14 @@ Example: ground-weather only (personal station)
       "pressure_hpa": 1015,
       "humidity_pct": 72
     }
+
   },
 }
 ```
+
 ---
 
-## 6. Satellite messages
+## 7. Satellite messages
 
 Satellite messages provide satellite (“bird”) metadata, TLE information and cluster-wide satellite bulletins.
 
@@ -199,8 +304,12 @@ Example: Broadcasting a TLE
 ```json
 {
   "satellite": {
-    "de": "ARRL",
-    "dx": "ALL",
+
+    "identity": {
+      "de": "ARRL",
+      "dx": "world"
+    },  
+
     "bird":  {
       "name": "AO-7",
       "tle": [
@@ -208,6 +317,7 @@ Example: Broadcasting a TLE
         "7530 101.9969 342.4412 0012315 146.2919 283.3011 12.53693888335840"
       ]
     }
+
   }
 }
 ```
@@ -216,7 +326,7 @@ This message type does not represent QSOs via satellites; those are DX spots wit
 
 ---
 
-## 7. System messages
+## 8. System messages
 
 System messages (key: system) broadcast cluster-internal announcements.
 
@@ -234,20 +344,18 @@ Example: system broadcast
   "system": {
     "de": "SYSTEM",
     "dx": "all",
-    "comment": "Server restart scheduled at 15:00 UTC"
+    "msg": "Server restart scheduled at 15:00 UTC"
   }
 }
 ```
 
-The `extended` block may contain optional metadata depending on cluster needs.
-
 ---
 
-## 8. Extended block rules
+## 8. spot.extended rules
 
-The `extended` object is only needed for Spots and next rules apply:
+The `spot.extended` object is only needed for Spots and the next rules apply:
 
-- MAY exist (empty {} allowed).
+- MUST exist (empty {} allowed).
 - MAY contain one or multiple namespaced structures (i.e., qso, contest, rbn, bird, activations).
 - MUST NOT contain duplicate namespaces.
 - MAY contain vendor-specific or experimental namespaces without breaking compatibility.
@@ -255,12 +363,30 @@ The `extended` object is only needed for Spots and next rules apply:
 Example with multiple namespaces:
 
 ```json
-"extended": {
-  "contest": { "name": "CQ WW SSB" },
-  "bird": { "name": "AO-91" },
-  "activations": [
-    { "program": "POTA", "ref": "EA-5678" }
-  ]
+{
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
+  "spot": {
+    "identity": {
+      "de": "EA1HET",
+      "dx": "DL0XXX",
+      "src": "manual"
+    },
+    "radio": {
+      "freq": 14025.0,
+      "mode": "CW",
+      "de_grid": "IN73dm"
+    },
+    "extended": {
+      "contest": { "name": "CQ WW SSB" },
+      "bird": { "name": "AO-91" },
+      "activations": [
+        { "program": "IOTA", "ref": "EA-0001", "comment": "On Air from IOTA via AO-91" }
+      ]
+    }
+  }
 }
 ```
 
@@ -276,16 +402,15 @@ The message model is intentionally designed for growth:
 - AI-assisted decoders
 - Club-level custom metadata
 
-Any new functionality fits cleanly under `extended`.
+Any new functionality fits cleanly under `spot.extended`.
 
 ---
 
 ## 10. Summary
 
-- All message types follow the same envelope:
-root object + extended block
-- DX Spots use a minimal spot block and an extensible extended block.
+- All message types follow a stable envelope per type.
+- DX Spots use a minimal spot object and an extensible spot.extended block.
 - Chat, Weather, Satellite, and System messages follow similar patterns.
 - The model is intentionally simple to generate and highly extensible.
 
-For specialized details about DX spots, see the companion document [DX Spot Schema](protocol/dx-spot-schema.md)
+For specialized details about DX spots, see the companion document [DX spot schema](protocol/dx-spot-schema.md)

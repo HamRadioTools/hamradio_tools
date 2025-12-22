@@ -1,6 +1,6 @@
 # Filtering and blacklist
 
-Last updated: **2025-12-04**  
+Last updated: **2025-12-22**  
 RCLDX Protocol: **v1-beta**
 
 ---
@@ -73,8 +73,8 @@ Characteristics:
 - Exact match only.
 - Case-insensitive.
 - Matches against:
-  - `spot.de`.
-  - `spot.dx`.
+  - `spot.identity.de`.
+  - `spot.identity.dx`.
   - `chat.de`.
   - `wx.de`.
   - any other message with a `de` field.
@@ -95,9 +95,9 @@ Characteristics:
 - No regex.
 - Extracted from common profanity or cluster-defined prohibited terms.
 - Matches against all human text fields:
-  - `radio.comment`.
-  - `chat.msg.comment`.
-  - `system.comment`.
+  - `spot.extended.qso.comment`.
+  - `chat.msg`.
+  - `system.msg`.
   - `wx.*`.
   - `extended.*`.
 - Example matches:
@@ -250,8 +250,8 @@ Filtering rules determine where the message ends up. An example routing matrix f
 | -------------- | ---------------------------- |
 | `input/spot`   | `output/spot`, `output/data` |
 | `input/chat`   | `output/chat`                |
-| `input/wx`     | `output/wx`, `output/data`   |
-| `input/sat`    | `output/sat`, `output/data`  |
+| `input/wx`     | `output/wx`                  |
+| `input/sat`    | `output/sat`                 |
 | `input/system` | `output/system`              |
 
 Filtering rules implement this logic.
@@ -262,18 +262,27 @@ Consider the following spot:
 
 ```json
 {
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  "event_type": "spot_add",
   "spot": {
-    "de": "EA1HET",
-    "dx": "DL1ABC",
-    "src": "manual",
+    "identity": {
+      "de": "EA1HET",
+      "dx": "DL1ABC",
+      "src": "manual"
+    },
     "radio": {
       "freq": 14250.0,
       "mode": "SSB",
-      "band": "20m",
-      "comment": "CQ DX"
+      "de_grid": "IN73dm"
+    },
+    "extended": {
+      "qso": {
+        "comment": "CQ DX"
+      }
     }
-  },
-  "extended": {}
+  }
 }
 ```
 
