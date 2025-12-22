@@ -1,19 +1,20 @@
 # Credits
 
-Acknowledgements for the [Radio Club Lugones](https://www.radioclublugones.es/) that inspired and contributed to RCLDX.
+Acknowledgements for the [Radio Club Lugones](https://www.radioclublugones.es/) that inspired and contributed to RCLDX since day one.
 
 ## Ham Radio community
 
-Thanks to all operators who provided feedback, shared ideas and tested early prototypes. More specifically:
+Thanks to all operators who provided feedback, shared ideas, and tested early prototypes. Your devotion is its own reward. Thank you.
 
 ### Clubs
 
-- [Radioclub Foronda](https://www.ea2rcf.org/)
-- [RadioMAD EA4RCM](https://www.radiomad.es/)
+- [Radioclub Foronda](https://www.ea2rcf.org/), for their support on document review and working as beta testers.
+- [RadioMAD EA4RCM](https://www.radiomad.es/), for their support on document review and working as beta testers.
+- THC dev team, for their collaboration and support on discussing the grandfathering security model and the sport processing techniques.
 
 ### Individuals
 
-- *Maybe you the first one??*
+- KI2D, Sebastián Delmont, for his support, contacts sharing and ideas regarding spot classification, split operation, verified accounts and shadown ban techniques.
 
 ### Amaterur Radio projects & services
 
