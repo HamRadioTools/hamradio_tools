@@ -1,7 +1,7 @@
 # Filtering and blacklist
 
 Last updated: **2025-12-22**  
-RCLDX Protocol: **v1-beta**
+Protocol Version: **v1-beta**
 
 ---
 

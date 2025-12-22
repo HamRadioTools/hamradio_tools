@@ -1,7 +1,7 @@
  # gRPC hooks
 
-Last updated: **2025-12-04**  
-RCLDX Protocol: **v1-beta**
+Last updated: **2025-12-22**  
+Protocol Version: **v1-beta**
 
 ---
 

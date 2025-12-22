@@ -1,6 +1,6 @@
 # Message formats
 
-Last updated: **2025-12-04**  
+Last updated: **2025-12-22**  
 Protocol Version: **v1-beta**
 
 ---
