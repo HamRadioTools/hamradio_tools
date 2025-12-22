@@ -17,7 +17,7 @@ gRPC hooks bring the following benefits:
 - Enables multi-language extensions (Python, Rust, Go).
 - Ensures message-level intelligence while keeping brokers lightweight.
 
-## 1. Purpose of gRPC Hooks
+## 1. Purpose of gRPC hooks
 
 The goals of the gRPC hook subsystem are:
 
@@ -38,7 +38,7 @@ All nodes can share the same logic via a shared gRPC service.
   - satellite cross-validation.
   - anti-flood / rate limiting.
 
-## 2. Message Processing Flow With Hooks
+## 2. Message processing flow with hooks
 
 When hooks are enabled, a message flows through the following sequence:
 
