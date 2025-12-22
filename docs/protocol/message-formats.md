@@ -72,7 +72,7 @@ Notes:
 
 ---
 
-## 3. Spot routing topics (textbook view)
+## 3. Spot routing topics
 
 This section explains the routing model as a fixed contract between producers, the cluster and consumers. The contract is designed for speed and predictability: routing is decided by the topic string alone, with no payload inspection required by clients.
 
@@ -83,7 +83,9 @@ The cluster accepts raw spots on `input/spot`, enriches and normalizes them, the
 
 ### 3.1 Why two outputs exist
 
-The firehose (`output/spot`) is the simplest path: specialists can consume everything and apply their own filtering. The curated topics exist for everyone else, providing a stable and compact routing matrix where wildcards can express common filters without custom parsing logic.
+The firehose (`output/spot`) is the simplest path: specialists can consume everything and apply their own filtering.
+
+The curated topics exist for everyone else, providing a stable and compact routing matrix where wildcards can express common filters without custom parsing logic.
 
 This split keeps the system open to advanced use while remaining friendly to lightweight clients.
 
