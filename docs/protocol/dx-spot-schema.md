@@ -9,6 +9,8 @@ This document defines the official DX Spot message format used in the RCLDX MQTT
 
 The goal is to define a minimal, stable, easy-to-generate structure while providing unlimited extensibility through the extended block.
 
+---
+
 ## 1. DX Spot message structure
 
 A DX spot message always consists of two blocks:
@@ -45,6 +47,7 @@ Holds additional optional information such as contest metadata, RBN data, satell
   "rbn": { ... },
   "bird": { ... },
   "activations": [ ... ]
+  ...
 }
 ```
 

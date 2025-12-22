@@ -7,7 +7,7 @@ Protocol Version: **v1-beta**
 
 The RCLDX cluster uses a unified, minimal and extensible JSON message model designed for high-speed radio-related data over MQTT.
 
-This document describes the general message structures used in the system, while specialized structures (such as DX Spots) are documented in their respective sections.
+This document describes the general message structures used in the system, while specialized structures (such as DX Spots) are documented in their respective individual sections.
 
 Each message type contains:
 
@@ -28,7 +28,9 @@ The system currently defines the following message types:
 | **Weather**   | Space-weather and ground-weather                           |
 | **System**    | Cluster-internal system announcements.                     |
 
-DX Spots are by far the most common message and have a dedicated full specification in DX Spot Schema.
+**DX Spots** are, by far, the most common message, and have a dedicated full specification in the [DX spot schema](protocol/dx-spot-schema.md) section.
+
+---
 
 ## 2. General message structure
 
@@ -53,10 +55,17 @@ The `extended` block:
 - may exist (empty object allowed).
 - may contain one or more namespaced sub-blocks.
 - preserves forward compatibility for future programs and initiatives.
+- provides an object developers can use for their own purposes.
+
+Over time, depending on the degree of adoption on this initiative, the mount of `<type>` objects would increase to cover other message formats.
+
+---
 
 ## 3. Spot messages (DX spots)
 
-DX spots are the most important message type on the RCLDX cluster. See [DX spot Schema](protocol/dx-spot-schema.md) for the full specification details, field definitions and examples.
+DX spots are the most important message type on the RCLDX cluster. See [DX spot schema](protocol/dx-spot-schema.md) for the full specification details, field definitions and examples.
+
+---
 
 ## 4. Chat messages
 
@@ -117,6 +126,8 @@ They support three scopes:
 
 The `extended` block may be present, but it's normally unused for chat.
 
+---
+
 ## 5. Weather messages
 
 Weather messages (key: wx) provide space weather and/or local weather from ham radio well-known services, individual stations or networks.
@@ -176,7 +187,8 @@ Example: ground-weather only (personal station)
     }
   },
 }
-````
+```
+---
 
 ## 6. Satellite messages
 
@@ -201,6 +213,8 @@ Example: Broadcasting a TLE
 ```
 
 This message type does not represent QSOs via satellites; those are DX spots with `extended`.`bird` clauses.
+
+---
 
 ## 7. System messages
 
@@ -227,6 +241,8 @@ Example: system broadcast
 
 The `extended` block may contain optional metadata depending on cluster needs.
 
+---
+
 ## 8. Extended block rules
 
 The `extended` object is only needed for Spots and next rules apply:
@@ -248,6 +264,8 @@ Example with multiple namespaces:
 }
 ```
 
+---
+
 ## 9. Forward compatibility
 
 The message model is intentionally designed for growth:
@@ -259,6 +277,8 @@ The message model is intentionally designed for growth:
 - Club-level custom metadata
 
 Any new functionality fits cleanly under `extended`.
+
+---
 
 ## 10. Summary
 
