@@ -13,7 +13,7 @@ The goal is to define a minimal, stable, easy-to-generate structure while provid
 
 ## 0. Cluster identifiers and event type
 
-These fields are added by the cluster after a spot enters on `input/spot`. They do not come from client software.
+These fields are added by the cluster after a spot enters on `spot/input`. They do not come from client software.
 
 | Field        | Description                                                                                                                                                                          |
 | ------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
@@ -72,9 +72,9 @@ This identifier model allows the cluster to:
 
 ## 1. DX spot message structure
 
-A DX spot message enters the cluster as a `spot` object on `input/spot`. The cluster then enriches it with envelope fields and publishes to `output/spot` and the `core/spot/...` topics described in [Message formats](protocol/message-formats.md).
+A DX spot message enters the cluster as a `spot` object on `spot/input`. The cluster then enriches it with envelope fields and publishes to `spot/output` and the `spot/filter/...` topics described in [Message formats](protocol/message-formats.md).
 
-Ingress example (published to `input/spot`):
+Ingress example (published to `spot/input`):
 
 ```json
 {
@@ -98,7 +98,7 @@ Ingress example (published to `input/spot`):
 }
 ```
 
-Normalized example (published to `output/spot` and `core/spot/...`):
+Normalized example (published to `spot/output` and `spot/filter/...`):
 
 ```json
 {

@@ -99,7 +99,6 @@ Characteristics:
   - `chat.msg`.
   - `system.msg`.
   - `wx.*`.
-  - `extended.*`.
 - Example matches:
   - "idiot".
   - "hate".
@@ -248,11 +247,11 @@ Filtering rules determine where the message ends up. An example routing matrix f
 
 | Input topic    | Designated output topics     |
 | -------------- | ---------------------------- |
-| `input/spot`   | `output/spot`, `output/data` |
-| `input/chat`   | `output/chat`                |
-| `input/wx`     | `output/wx`                  |
-| `input/sat`    | `output/sat`                 |
-| `input/system` | `output/system`              |
+| `spot/input`   | `spot/output`, `spot/data`   |
+| `chat/input`   | `chat/output`                |
+| `wx/input`     | `wx/output`                  |
+| `sat/input`    | `sat/output`                 |
+| `sys/input`.   | `sys/output`                 |
 
 Filtering rules implement this logic.
 
@@ -299,7 +298,7 @@ Pipeline:
   - Mode allowed
   - Type=spot supported
 Forward
-  - output/spot
+  - spot/output
   - output/data
 
 Everything passes.

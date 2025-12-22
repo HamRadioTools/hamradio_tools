@@ -67,7 +67,7 @@ Spot envelope (normalized):
 Notes:
 
 - `event_type` is always lowercase.
-- `id7`, `hid`, `sid`, `event_type` are added by the cluster once a raw spot enters `input/spot`.
+- `id7`, `hid`, `sid`, `event_type` are added by the cluster once a raw spot enters `spot/input`.
 - The `spot` object carries identity, radio, and extended data (see DX spot schema).
 
 ---
@@ -76,14 +76,14 @@ Notes:
 
 This section explains the routing model as a fixed contract between producers, the cluster and consumers. The contract is designed for speed and predictability: routing is decided by the topic string alone, with no payload inspection required by clients.
 
-The cluster accepts raw spots on `input/spot`, enriches and normalizes them, then publishes to two outputs:
+The cluster accepts raw spots on `spot/input`, enriches and normalizes them, then publishes to two outputs:
 
-1. `output/spot` (global firehose, normalized)
-2. `core/spot/{src_region}/{dst_region}/{band}/{mode_norm}/{submode}` (curated routing topics)
+1. `spot/output` (global firehose, normalized)
+2. `spot/filter/{src_region}/{dst_region}/{band}/{mode_norm}/{submode}` (curated routing topics)
 
 ### 3.1 Why two outputs exist
 
-The firehose (`output/spot`) is the simplest path: specialists can consume everything and apply their own filtering.
+The firehose (`spot/output`) is the simplest path: specialists can consume everything and apply their own filtering.
 
 The curated topics exist for everyone else, providing a stable and compact routing matrix where wildcards can express common filters without custom parsing logic.
 
@@ -94,13 +94,13 @@ This split keeps the system open to advanced use while remaining friendly to lig
 Final topic format (data only, no version segment):
 
 ```mqtt
-core/spot/{src_region}/{dst_region}/{band}/{mode_norm}/{submode}
+spot/filter/{src_region}/{dst_region}/{band}/{mode_norm}/{submode}
 ```
 
 Example:
 
 ```mqtt
-core/spot/na/eu/20m/digi/ft8
+spot/filter/na/eu/20m/digi/ft8
 ```
 
 This means: a spot originating in North America, pointing to Europe, on 20 meters, digital mode, submode FT8.
@@ -125,17 +125,17 @@ Rules:
 Valid example:
 
 ```mqtt
-core/spot/eu/na/40m/digi/any
+spot/filter/eu/na/40m/digi/any
 ```
 
 ### 3.4 Subscription patterns
 
 The topic format is built for wildcard subscriptions:
 
-- All EU → NA propagation: `core/spot/eu/na/#`
-- EU → NA, CW on any band: `core/spot/eu/na/+/cw/+`
-- Any → EU, 20 m DIGI: `core/spot/+/eu/20m/digi/+`
-- Global FT8 only: `core/spot/+/+/+/digi/ft8`
+- All EU → NA propagation: `spot/filter/eu/na/#`
+- EU → NA, CW on any band: `spot/filter/eu/na/+/cw/+`
+- Any → EU, 20 m DIGI: `spot/filter/+/eu/20m/digi/+`
+- Global FT8 only: `spot/filter/+/+/+/digi/ft8`
 
 Clients can choose narrow or broad subscriptions without inspecting JSON payloads.
 
@@ -371,16 +371,19 @@ Example with multiple namespaces:
   "sid": "b8b4f9a1...",
   "event_type": "spot_add",
   "spot": {
+
     "identity": {
       "de": "EA1HET",
       "dx": "DL0XXX",
       "src": "manual"
     },
+    
     "radio": {
       "freq": 14025.0,
       "mode": "CW",
       "de_grid": "IN73dm"
     },
+    
     "extended": {
       "contest": { "name": "CQ WW SSB" },
       "bird": { "name": "AO-91" },
@@ -388,6 +391,7 @@ Example with multiple namespaces:
         { "program": "IOTA", "ref": "EA-0001", "comment": "On Air from IOTA via AO-91" }
       ]
     }
+
   }
 }
 ```
