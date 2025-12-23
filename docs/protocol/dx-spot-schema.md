@@ -72,6 +72,8 @@ This identifier model allows the cluster to:
 
 ## 1. DX spot message structure
 
+**Case rules**: All string values in spot messages should be lowercase. If a client sends mixed-case values, the cluster will either normalize them to lowercase or reject the message due to case sensitivity.
+
 A DX spot message enters the cluster as a `spot` object on `spot/input`. The cluster then enriches it with envelope fields and publishes to `spot/output` and the `spot/filter/...` topics described in [Message formats](protocol/message-formats.md).
 
 Ingress example (published to `spot/input`):
@@ -81,15 +83,16 @@ Ingress example (published to `spot/input`):
   "spot": {
 
     "identity": {
-      "de": "EA1HET",
-      "dx": "DL0XXX",
+      "de": "ea1het",
+      "dx": "dl0xxx",
       "src": "manual"
     },
     
     "radio": {
       "freq": 14005.0,
-      "mode": "CW",
-      "de_grid": "IN73dm"
+      "split": null,
+      "mode": "cw",
+      "de_grid": "in73dm"
     },
     
     "extended": { }
@@ -109,15 +112,16 @@ Normalized example (published to `spot/output` and `spot/filter/...`):
   "spot": {
 
     "identity": {
-      "de": "EA1HET",
-      "dx": "DL0XXX",
+      "de": "ea1het",
+      "dx": "dl0xxx",
       "src": "manual"
     },
     
     "radio": {
       "freq": 14005.0,
-      "mode": "CW",
-      "de_grid": "IN73dm"
+      "split": null,
+      "mode": "cw",
+      "de_grid": "in73dm"
     },
     
     "extended": { }
@@ -137,15 +141,16 @@ The `spot.extended` object holds optional information such as contest metadata, 
   "spot": {
 
     "identity": {
-      "de": "EA1HET",
-      "dx": "DL0XXX",
+      "de": "ea1het",
+      "dx": "dl0xxx",
       "src": "manual"
     },
   
     "radio": {
       "freq": 14005.0,
-      "mode": "CW",
-      "de_grid": "IN73dm"
+      "split": null,
+      "mode": "cw",
+      "de_grid": "in73dm"
     },
   
     "extended": {
@@ -206,6 +211,7 @@ In this way, the spot.extended block becomes a simple, standardized “pipe” t
 | Field     | Type   | Required | Description                                   |
 | --------- | ------ | -------- | --------------------------------------------- |
 | `freq`    | float  | Yes      | Frequency in MHz (decimal required).          |
+| `split`   | float  | No       | Split frequency in MHz (nullable).            |
 | `mode`    | string | Yes      | Mode of operation: `CW`, `SSB`, `FT8`, etc.   |
 | `de_grid` | loc    | Yes      | Maidenhead grid of the DE station (nullable). |
 
@@ -234,22 +240,23 @@ The block `qso` is meant to carry on the typical exchanges in SSB, CW or Digi. I
   
   "spot": {
     "identity": {
-      "de": "EA1HET",
-      "dx": "DL0XXX",
+      "de": "ea1het",
+      "dx": "dl0xxx",
       "src": "manual"
     },
     
     "radio": {
       "freq": 14005.0,
-      "mode": "CW",
-      "de_grid": "IN73dm"
+      "split": null,
+      "mode": "cw",
+      "de_grid": "in73dm"
     },
 
     "extended": {
       "qso": {
         "rst_s": 59,
         "rst_r": 59,
-        "comment": "Thanks for QSO. 73"
+        "comment": "thanks for qso. 73"
       }
     }
 
@@ -276,22 +283,23 @@ Full example:
   "spot": {
     
     "identity": {
-      "de": "EA1HET",
-      "dx": "K3LR",
+      "de": "ea1het",
+      "dx": "k3lr",
       "src": "ham2k"
     },
     
     "radio": {
       "freq": 14210.0,
-      "mode": "SSB",
-      "de_grid": "IN73dm"
+      "split": null,
+      "mode": "ssb",
+      "de_grid": "in73dm"
     },
 
     "extended": {
       "qso": {
         "rst_s": 59,
         "rst_r": 59,
-        "comment": "Calling CQ Europe"
+        "comment": "calling cq europe"
       }
     }
 
@@ -314,20 +322,21 @@ That strategy provides the necessary flexibility to individuals and software dev
   "spot": {
 
     "identity": {
-      "de": "EA1HET",
-      "dx": "DL0XXX",
+      "de": "ea1het",
+      "dx": "dl0xxx",
       "src": "manual"
     },
     
     "radio": {
       "freq": 14205.0,
-      "mode": "SSB",
-      "de_grid": "IN73dm"
+      "split": null,
+      "mode": "ssb",
+      "de_grid": "in73dm"
     },
 
     "extended": {
       "contest": {
-        "name": "CQ WW SSB",
+        "name": "cq ww ssb",
         "rst_s": 59,
         "rst_r": 59,
         "xch_s": "123",
@@ -363,20 +372,21 @@ Full example:
   "spot": {
 
     "identity": {
-      "de": "EA1HET",
-      "dx": "K3LR",
-      "src": "Ham2K"
+      "de": "ea1het",
+      "dx": "k3lr",
+      "src": "ham2k"
     },
     
     "radio": {
       "freq": 14010.0,
-      "mode": "CW",
-      "de_grid": "IN73dm"
+      "split": null,
+      "mode": "cw",
+      "de_grid": "in73dm"
     },
     
     "extended": {
       "contest": {
-        "name": "CQ WW CW",
+        "name": "cq ww cw",
         "rst_s": 59,
         "rst_r": 59,
         "xch_s": "14",
@@ -410,14 +420,15 @@ Depending on the operational mode (CW, RTTY, FT4 or FT8) the potential spot migh
   "spot": {
 
     "identity": {
-      "de": "RBN-SKIMMER-123",
-      "dx": "EA1HET",
+      "de": "rbn-skimmer-123",
+      "dx": "ea1het",
       "src": "rbn"
     },
     
     "radio": {
       "freq": 14074.67,
-      "mode": "RTTY",
+      "split": null,
+      "mode": "rtty",
       "de_grid": null
     },
     
@@ -428,7 +439,7 @@ Depending on the operational mode (CW, RTTY, FT4 or FT8) the potential spot migh
         "rst_r": null,
         "wpm": 21,
         "bps": null,
-        "grid": "IN55EM"
+        "grid": "in55em"
       }
     }
 
@@ -458,14 +469,15 @@ Full example:
   "spot": {
 
     "identity": {
-      "de": "RBN-SKIMMER-123",
-      "dx": "EA1HET",
+      "de": "rbn-skimmer-123",
+      "dx": "ea1het",
       "src": "rbn"
     },
     
     "radio": {
       "freq": 14074.67,
-      "mode": "RTTY",
+      "split": null,
+      "mode": "rtty",
       "de_grid": null
     },
 
@@ -476,7 +488,7 @@ Full example:
         "rst_r": null,
         "wpm": null,
         "bps": 45,
-        "grid": "IN55EM"
+        "grid": "in55em"
       }
     }
 
@@ -495,22 +507,23 @@ Full example:
   "spot": {
 
     "identity": {
-      "de": "EA1HET",
-      "dx": "DL3XYZ",
+      "de": "ea1het",
+      "dx": "dl3xyz",
       "src": "manual"
     },
 
     "radio": {
       "freq": 145950.0,
-      "mode": "SSB",
-      "de_grid": "IN73dm"
+      "split": null,
+      "mode": "ssb",
+      "de_grid": "in73dm"
     },
     
     "extended": {
       "bird": {
-        "name": "AO-7",
-        "grid_s": "IN55",
-        "grid_r": "IN89"
+        "name": "ao-7",
+        "grid_s": "in55",
+        "grid_r": "in89"
       }
     }
   
@@ -538,23 +551,24 @@ Full example:
   "spot": {
   
     "identity": {
-      "de": "EA1HET",
-      "dx": "DL3XYZ",
+      "de": "ea1het",
+      "dx": "dl3xyz",
       "src": "manual"
     },
     
     "radio": {
       "freq": 145950.0,
-      "mode": "SSB",
-      "de_grid": "IN73dm"
+      "split": null,
+      "mode": "ssb",
+      "de_grid": "in73dm"
     },
 
     "extended": {
       "bird": {
-        "name": "AO-7",
-        "grid_s": "IN73",
-        "grid_r": "JO31",
-        "comment": "QSO via AO-7"
+        "name": "ao-7",
+        "grid_s": "in73",
+        "grid_r": "jo31",
+        "comment": "qso via ao-7"
       }
     }
 
@@ -573,23 +587,24 @@ Full example:
   "spot": {
 
     "identity": {
-      "de": "EA1HET",
-      "dx": "F4ABC",
+      "de": "ea1het",
+      "dx": "f4abc",
       "src": "manual"
     },
 
     "radio": {
       "freq": 14244.0,
-      "mode": "SSB",
-      "de_grid": "IN73dm"
+      "split": null,
+      "mode": "ssb",
+      "de_grid": "in73dm"
     },
 
     "extended": {
       "activations": [
-        { "program": "POTA", "ref": "EU-123" },
-        { "program": "SOTA", "ref": "EA1/AT-001" },
-        { "program": "IOTA", "ref": "AF-001" },
-        { "program": "BOTA", "ref": "B/EA-0001" }
+        { "program": "pota", "ref": "eu-123" },
+        { "program": "sota", "ref": "ea1/at-001" },
+        { "program": "iota", "ref": "af-001" },
+        { "program": "bota", "ref": "b/ea-0001" }
       ]
     }
 
@@ -616,20 +631,21 @@ Full example:
   "spot": {
     
     "identity": {
-      "de": "EA1HET",
-      "dx": "F4ABC",
+      "de": "ea1het",
+      "dx": "f4abc",
       "src": "manual"
     },
     
     "radio": {
       "freq": 14244.0,
-      "mode": "SSB",
-      "de_grid": "IN73dm"
+      "split": null,
+      "mode": "ssb",
+      "de_grid": "in73dm"
     },
     
     "extended": {
       "activations": [
-        { "program": "POTA", "ref": "EA-1234", "comment": "Portable activation" }
+        { "program": "pota", "ref": "ea-1234", "comment": "portable activation" }
       ]
     }
   
@@ -650,15 +666,16 @@ Full example:
   "spot": {
   
     "identity": {
-      "de": "EA1HET",
-      "dx": "DL0XYZ",
+      "de": "ea1het",
+      "dx": "dl0xyz",
       "src": "manual"
     },
   
     "radio": {
       "freq": 7144.0,
-      "mode": "SSB",
-      "de_grid": "IN73dm"
+      "split": null,
+      "mode": "ssb",
+      "de_grid": "in73dm"
     },
   
     "extended": { }
@@ -678,21 +695,22 @@ Full example:
   "spot": {
   
     "identity": {
-      "de": "RBN-SKIMMER-55",
-      "dx": "EA1HET",
+      "de": "rbn-skimmer-55",
+      "dx": "ea1het",
       "src": "rbn"
     },
   
     "radio": {
       "freq": 14018.0,
-      "mode": "CW",
+      "split": null,
+      "mode": "cw",
       "de_grid": null
     },
   
     "extended": {
-      "rbn": { "snr_db": 32, "grid": "IO91" },
+      "rbn": { "snr_db": 32, "grid": "io91" },
       "activations": [
-        { "program": "SOTA", "ref": "EA1/CR-001" }
+        { "program": "sota", "ref": "ea1/cr-001" }
       ]
     }
   
@@ -711,21 +729,22 @@ Full example:
   "spot": {
   
     "identity": {
-      "de": "EA1HET",
-      "dx": "K2ABC",
+      "de": "ea1het",
+      "dx": "k2abc",
       "src": "manual"
     },
   
     "radio": {
       "freq": 435250.0,
-      "mode": "FM",
-      "de_grid": "IN73dm"
+      "split": null,
+      "mode": "fm",
+      "de_grid": "in73dm"
     },
   
     "extended": {
-      "bird": { "name": "AO-91", "comment": "AO-91 pass" },
+      "bird": { "name": "ao-91", "comment": "ao-91 pass" },
       "activations": [
-        { "program": "POTA", "ref": "EA-5678", "comment": "AO-91 + POTA activation" }
+        { "program": "pota", "ref": "ea-5678", "comment": "ao-91 + pota activation" }
       ]
     }
   

@@ -47,15 +47,16 @@ Spot envelope (normalized):
   "spot": {
 
     "identity": {
-      "de": "EA1HET",
-      "dx": "DL0XXX",
+      "de": "ea1het",
+      "dx": "dl0xxx",
       "src": "manual"
     },
 
     "radio": {
       "freq": 14205.0,
-      "mode": "CW",
-      "de_grid": "IN73dm"
+      "split": null,
+      "mode": "cw",
+      "de_grid": "in73dm"
     },
 
     "extended": { }
@@ -69,6 +70,7 @@ Notes:
 - `event_type` is always lowercase.
 - `id7`, `hid`, `sid`, `event_type` are added by the cluster once a raw spot enters `spot/input`.
 - The `spot` object carries identity, radio, and extended data (see DX spot schema).
+- All string values in spot payloads should be lowercase; the cluster may normalize or reject mixed-case values.
 
 ---
 
@@ -91,7 +93,7 @@ This split keeps the system open to advanced use while remaining friendly to lig
 
 ### 3.2 Topic format and meaning
 
-Final topic format (data only, no version segment):
+Final topic format:
 
 ```mqtt
 spot/filter/{src_region}/{dst_region}/{band}/{mode_norm}/{submode}
@@ -103,9 +105,7 @@ Example:
 spot/filter/na/eu/20m/digi/ft8
 ```
 
-This means: a spot originating in North America, pointing to Europe, on 20 meters, digital mode, submode FT8.
-
-The topic string is the routing index. It is designed to be deterministic and human-readable while remaining easy for MQTT brokers and clients to match.
+This means a spot originating in North America is pointing out to Europe, on 20 meters, digital mode, submode FT8. The topic string is the routing index. It is designed to be deterministic and human-readable while remaining easy for MQTT brokers and clients to match.
 
 ### 3.3 Locked vocabularies
 
@@ -190,10 +190,10 @@ They support three scopes:
 ```json
 {
   "chat": {
-    "de": "EA1HET",
-    "dx": "DL0XXX",
+    "de": "ea1het",
+    "dx": "dl0xxx",
     "scope": "1to1",  // 1to1 | all | band
-    "msg": "Fancy a coffe?"
+    "msg": "fancy a coffe?"
   }
 }
 ```
@@ -203,10 +203,10 @@ They support three scopes:
 ```json
 {
   "chat": {
-    "de": "EA1HET",
+    "de": "ea1het",
     "dx": "world",
     "scope": "world",  // all | band | 1to1
-    "msg": "Seeking sched for 160m tomorrow."
+    "msg": "seeking sched for 160m tomorrow."
   }
 }
 ```
@@ -216,10 +216,10 @@ They support three scopes:
 ```json
 {
   "chat": {
-    "de": "EA1HET",
+    "de": "ea1het",
     "dx": "20m",
     "scope": "band",  // band | 1to1 | all  
-    "msg": "Impressive opening North-South to AF"
+    "msg": "impressive opening north-south to af"
   }
 }
 ```
@@ -239,7 +239,7 @@ Example: combined space & ground weather
   "wx": {
 
     "identity": {
-      "de": "W5MMW",
+      "de": "w5mmw",
       "dx": "all"
     },  
 
@@ -248,7 +248,7 @@ Example: combined space & ground weather
       "sn": 200,
       "a": 9,
       "k": 3,
-      "xray": "C2.8",
+      "xray": "c2.8",
       "304a": 144.0,
       "pf": 26,
       "ef": 2550,
@@ -261,7 +261,7 @@ Example: combined space & ground weather
     },
 
     "ground": {
-      "gridloc": "IN55el",
+      "gridloc": "in55el",
       "temp_c": 7.5,
       "wind_kts": 12,
       "pressure_hpa": 1012,
@@ -279,12 +279,12 @@ Example: ground-weather only (personal station)
   "wx": {
 
     "identity": {
-      "de": "W5MMW",
+      "de": "w5mmw",
       "dx": "all"
     },  
 
     "ground": {
-      "gridloc": "IN43im",
+      "gridloc": "in43im",
       "temp_c": 21.4,
       "wind_kts": 5,
       "pressure_hpa": 1015,
@@ -308,14 +308,14 @@ Example: Broadcasting a TLE
   "satellite": {
 
     "identity": {
-      "de": "ARRL",
+      "de": "arrl",
       "dx": "world"
     },  
 
     "bird":  {
-      "name": "AO-7",
+      "name": "ao-7",
       "tle": [
-        "7530U 74089B 25336.28342912 -.00000021 00000-0 15963-3 0 9994",
+        "7530u 74089b 25336.28342912 -.00000021 00000-0 15963-3 0 9994",
         "7530 101.9969 342.4412 0012315 146.2919 283.3011 12.53693888335840"
       ]
     }
@@ -344,9 +344,9 @@ Example: system broadcast
 ```json
 {
   "system": {
-    "de": "SYSTEM",
+    "de": "system",
     "dx": "all",
-    "msg": "Server restart scheduled at 15:00 UTC"
+    "msg": "server restart scheduled at 15:00 utc"
   }
 }
 ```
@@ -373,22 +373,23 @@ Example with multiple namespaces:
   "spot": {
 
     "identity": {
-      "de": "EA1HET",
-      "dx": "DL0XXX",
+      "de": "ea1het",
+      "dx": "dl0xxx",
       "src": "manual"
     },
     
     "radio": {
       "freq": 14025.0,
-      "mode": "CW",
-      "de_grid": "IN73dm"
+      "split": null,
+      "mode": "cw",
+      "de_grid": "in73dm"
     },
     
     "extended": {
-      "contest": { "name": "CQ WW SSB" },
-      "bird": { "name": "AO-91" },
+      "contest": { "name": "cq ww ssb" },
+      "bird": { "name": "ao-91" },
       "activations": [
-        { "program": "IOTA", "ref": "EA-0001", "comment": "On Air from IOTA via AO-91" }
+        { "program": "iota", "ref": "ea-0001", "comment": "on air from iota via ao-91" }
       ]
     }
 

@@ -267,18 +267,19 @@ Consider the following spot:
   "event_type": "spot_add",
   "spot": {
     "identity": {
-      "de": "EA1HET",
-      "dx": "DL1ABC",
+      "de": "ea1het",
+      "dx": "dl1abc",
       "src": "manual"
     },
     "radio": {
       "freq": 14250.0,
-      "mode": "SSB",
-      "de_grid": "IN73dm"
+      "split": null,
+      "mode": "ssb",
+      "de_grid": "in73dm"
     },
     "extended": {
       "qso": {
-        "comment": "CQ DX"
+        "comment": "cq dx"
       }
     }
   }
