@@ -256,7 +256,7 @@ The block `qso` is meant to carry on the typical exchanges in SSB, CW or Digi. I
       "qso": {
         "rst_s": 59,
         "rst_r": 59,
-        "comment": "thanks for qso. 73"
+        "msg": "thanks for qso. 73"
       }
     }
 
@@ -270,7 +270,7 @@ Fields:
 | --------- | ------ | ---------| ----------------------------------- |
 | `rst_s`   | int    | No       | RST (radio, signal, tone) sent.     |
 | `rst_r`   | int    | No       | RST (radio, signal, tone) received. |
-| `comment` | string | No       | Short free-text comment.            |
+| `msg`     | string | No       | Short free-text message (nullable). |
 
 Full example:
 
@@ -299,7 +299,7 @@ Full example:
       "qso": {
         "rst_s": 59,
         "rst_r": 59,
-        "comment": "calling cq europe"
+        "msg": "calling cq europe"
       }
     }
 
@@ -341,7 +341,7 @@ That strategy provides the necessary flexibility to individuals and software dev
         "rst_r": 59,
         "xch_s": "123",
         "xch_r": "54",
-        "msg": "Thank you, 73s"
+        "msg": "thank you, 73s"
       }
     }
 
@@ -536,12 +536,12 @@ Full example:
 
 Fields:  
 
-| Field     | Description                       |
-| --------- | --------------------------------- |
-| `name`    | Satellite (“bird”) name.          |
-| `grid_s`  | Grid of the transmitting station. |
-| `grid_r`  | Grid of the receiving station.    |
-| `msg`     | Short free-text comment.          |
+| Field     | Description                         |
+| --------- | ----------------------------------- |
+| `name`    | Satellite (“bird”) name.            |
+| `grid_s`  | Grid of the transmitting station.   |
+| `grid_r`  | Grid of the receiving station.      |
+| `msg`     | Short free-text message (nullable). |
 
 Full example:
 
@@ -621,7 +621,7 @@ Fields:
 | --------- | --------------------------------------------------- |
 | `program` | Activation program (POTA, SOTA, IOTA, BOTA, WWFF…). |
 | `ref`     | Official program reference.                         |
-| `msg`     | Short free-text comment.                            |
+| `msg`     | Short free-text message (nullable).                 |
 
 Full example:
 

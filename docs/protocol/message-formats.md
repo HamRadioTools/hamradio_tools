@@ -389,7 +389,7 @@ Example with multiple namespaces:
       "contest": { "name": "cq ww ssb" },
       "bird": { "name": "ao-91" },
       "activations": [
-        { "program": "iota", "ref": "ea-0001", "comment": "on air from iota via ao-91" }
+        { "program": "iota", "ref": "ea-0001", "msg": "on air from iota via ao-91" }
       ]
     }
 

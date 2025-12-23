@@ -95,9 +95,9 @@ Characteristics:
 - No regex.
 - Extracted from common profanity or cluster-defined prohibited terms.
 - Matches against all human text fields:
-  - `spot.extended.qso.comment`.
+  - `spot.extended.qso.msg`.
   - `chat.msg`.
-  - `system.msg`.
+  - `sys.msg`.
   - `wx.*`.
 - Example matches:
   - "idiot".
@@ -233,7 +233,7 @@ Examples:
 - Only allow weather from:
 
 ```txt
-TRUSTED_WEATHER_NODES = [ "NOAA", "W5MMW" ]
+TRUSTED_WEATHER_NODES = [ "noaa", "w5mmw" ]
 ```
 
 - Only allow contest spots from trusted contest loggers.
@@ -279,7 +279,7 @@ Consider the following spot:
     },
     "extended": {
       "qso": {
-        "comment": "cq dx"
+        "msg": "cq dx"
       }
     }
   }
