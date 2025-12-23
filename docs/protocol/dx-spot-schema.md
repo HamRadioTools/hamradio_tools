@@ -340,7 +340,8 @@ That strategy provides the necessary flexibility to individuals and software dev
         "rst_s": 59,
         "rst_r": 59,
         "xch_s": "123",
-        "xch_r": "54"
+        "xch_r": "54",
+        "msg": "Thank you, 73s"
       }
     }
 
@@ -357,6 +358,7 @@ Fields:
 | `rst_r` | int    | No       | RST (radio, signal, tone) received. |
 | `xch_s` | string | No       | Context exchange sent.              |
 | `xch_r` | string | No       | Context exchange received.          |
+| `msg`   | string | No       | Short free-text message (nullable). |
 
 (*) *If the block is to be used, the name becomes compulsory.*.  
 (**) ADIF contest names are regularly checked to ensure compliance.
@@ -390,7 +392,8 @@ Full example:
         "rst_s": 59,
         "rst_r": 59,
         "xch_s": "14",
-        "xch_r": "54"
+        "xch_r": "54",
+        "msg": null
       }
     }
 
@@ -538,7 +541,7 @@ Fields:
 | `name`    | Satellite (“bird”) name.          |
 | `grid_s`  | Grid of the transmitting station. |
 | `grid_r`  | Grid of the receiving station.    |
-| `comment` | Short free-text comment.          |
+| `msg`     | Short free-text comment.          |
 
 Full example:
 
@@ -568,7 +571,7 @@ Full example:
         "name": "ao-7",
         "grid_s": "in73",
         "grid_r": "jo31",
-        "comment": "qso via ao-7"
+        "msg": "qso via ao-7"
       }
     }
 
@@ -618,7 +621,7 @@ Fields:
 | --------- | --------------------------------------------------- |
 | `program` | Activation program (POTA, SOTA, IOTA, BOTA, WWFF…). |
 | `ref`     | Official program reference.                         |
-| `comment` | Short free-text comment.                            |
+| `msg`     | Short free-text comment.                            |
 
 Full example:
 
@@ -645,7 +648,7 @@ Full example:
     
     "extended": {
       "activations": [
-        { "program": "pota", "ref": "ea-1234", "comment": "portable activation" }
+        { "program": "pota", "ref": "ea-1234", "msg": "portable activation" }
       ]
     }
   
@@ -742,9 +745,9 @@ Full example:
     },
   
     "extended": {
-      "bird": { "name": "ao-91", "comment": "ao-91 pass" },
+      "bird": { "name": "ao-91", "msg": "ao-91 pass" },
       "activations": [
-        { "program": "pota", "ref": "ea-5678", "comment": "ao-91 + pota activation" }
+        { "program": "pota", "ref": "ea-5678", "msg": "ao-91 + pota activation" }
       ]
     }
   
