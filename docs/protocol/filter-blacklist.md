@@ -247,11 +247,11 @@ Filtering rules determine where the message ends up. An example routing matrix f
 
 | Input topic    | Designated output topics     |
 | -------------- | ---------------------------- |
-| `spot/input`   | `spot/output`, `spot/data`   |
-| `chat/input`   | `chat/output`                |
-| `wx/input`     | `wx/output`                  |
-| `sat/input`    | `sat/output`                 |
-| `sys/input`.   | `sys/output`                 |
+| `spot/input`   | `spot/output`, `spot/filter/...` |
+| `chat/input`   | `chat/output`                    |
+| `wx/input`     | `wx/output`                      |
+| `sat/input`    | `sat/output`                     |
+| `sys/input`    | `sys/output`                     |
 
 Filtering rules implement this logic.
 

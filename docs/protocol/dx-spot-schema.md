@@ -20,7 +20,7 @@ These fields are added by the cluster after a spot enters on `spot/input`. They 
 | `id7`        | Event identifier (UUIDv7). Unique per reception. Used for ordering, tracing and auditability across the entire pipeline.                                                             |
 | `hid`        | Hash identifier. Cryptographic hash of the normalized payload, used for integrity verification and anti-tamper checks between trusted services.                                      |
 | `sid`        | Spot identity signature. Deterministic identifier that groups multiple receptions referring to the same underlying spot. Used for de-duplication, corrections and deletion semantics.|
-| `event_type` | Event lifecycle indicator. Defines how this message must be interpreted by consumers. Allowed values are: spot_add, spot_patch, spot_dele(te), always lowercase.                     |
+| `event_type` | Event lifecycle indicator. Defines how this message must be interpreted by consumers. Allowed values are: spot_add, spot_patch, spot_dele, always lowercase.                        |
 
 ### Semantic rules and guarantees
 
@@ -50,7 +50,7 @@ Defines how consumers must apply this event:
 
 - `spot_add`: Introduces a new spot or an additional reception of an existing one.
 - `spot_patch`: Modifies or corrects the current canonical representation of a spot identified by `sid` (e.g. wrong frequency, mode, grid or metadata).
-- `spot_dele(te)`: Explicitly retracts a spot identified by `sid` from the active cluster view.
+- `spot_dele`: Explicitly retracts a spot identified by `sid` from the active cluster view.
 
 > **NOTE:**  
 > Event streams are append-only in nature; corrections and deletions are expressed as new events,

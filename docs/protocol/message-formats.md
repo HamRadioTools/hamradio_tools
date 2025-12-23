@@ -181,9 +181,9 @@ They support three scopes:
 
 | Scope    | Meaning                                                |
 | -------- | ------------------------------------------------------ |
-| **1to1** | Direct message between two callsigns.                  |
-| **band** | Message broadcast to users monitoring a specific band. |
-| **all**  | Message broadcast globally.                            |
+| **1to1**  | Direct message between two callsigns.                  |
+| **band**  | Message broadcast to users monitoring a specific band. |
+| **world** | Message broadcast globally.                            |
 
 ### 5.1. 1-to-1 chat
 
@@ -192,7 +192,7 @@ They support three scopes:
   "chat": {
     "de": "ea1het",
     "dx": "dl0xxx",
-    "scope": "1to1",  // 1to1 | all | band
+    "scope": "1to1",  // 1to1 | world | band
     "msg": "fancy a coffe?"
   }
 }
@@ -205,7 +205,7 @@ They support three scopes:
   "chat": {
     "de": "ea1het",
     "dx": "world",
-    "scope": "world",  // all | band | 1to1
+    "scope": "world",  // world | band | 1to1
     "msg": "seeking sched for 160m tomorrow."
   }
 }
@@ -218,7 +218,7 @@ They support three scopes:
   "chat": {
     "de": "ea1het",
     "dx": "20m",
-    "scope": "band",  // band | 1to1 | all  
+    "scope": "band",  // band | 1to1 | world  
     "msg": "impressive opening north-south to af"
   }
 }
