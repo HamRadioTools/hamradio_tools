@@ -27,6 +27,7 @@
   - [Message formats](protocol/message-formats.md)
   - [DX spot schema](protocol/dx-spot-schema.md)
   - [Filtering & blacklist](protocol/filter-blacklist.md)
+  - [Working with exclusions](protocol/working-with-exclusions.md)
   - [gRPC hooks](protocol/grpc-hooks.md)
   - [MQTT QoS behaviour](protocol/qos-behaviour.md)
 

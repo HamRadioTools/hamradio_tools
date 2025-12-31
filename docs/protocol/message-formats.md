@@ -78,16 +78,19 @@ Notes:
 
 This section explains the routing model as a fixed contract between producers, the cluster and consumers. The contract is designed for speed and predictability: routing is decided by the topic string alone, with no payload inspection required by clients.
 
-The cluster accepts raw spots on `spot/input`, enriches and normalizes them, then publishes to two outputs:
+The cluster accepts raw spots on `spot/input`, enriches and normalizes them, then publishes to three outputs:
 
 1. `spot/output` (global firehose, normalized)
 2. `spot/filter/{src_region}/{dst_region}/{band}/{mode_norm}/{submode}` (curated routing topics)
+3. `spot/route/#` (global firehose with the enriched `route` block)
 
 ### 3.1 Why two outputs exist
 
 The firehose (`spot/output`) is the simplest path: specialists can consume everything and apply their own filtering.
 
 The curated topics exist for everyone else, providing a stable and compact routing matrix where wildcards can express common filters without custom parsing logic.
+
+The `spot/route` stream exists for clients that need exclusion or complex filtering logic. It keeps the broker neutral while giving applications the data they need to filter locally.
 
 This split keeps the system open to advanced use while remaining friendly to lightweight clients.
 
@@ -164,6 +167,14 @@ Topics provide the fast path, but the payload is the authoritative record. It mu
 - `id7`, `hid`, `sid`
 
 This enables corrections, audits, analytics and reclassification later without breaking the routing contract.
+
+### 3.7 Exclusions and the route block
+
+MQTT topic filters are inclusive only. There is no NOT operator, so exclusions (for example, "everything except EU") must be done by clients.
+
+The `spot/route` stream provides an enriched `route` block in the payload with normalized fields like `de_cont`, `dx_cont`, `band`, `mode`, and `submode`. Clients should use those fields to apply their own exclusion logic without broker-side preference data.
+
+For more detail and examples, see [Working with exclusions](protocol/working-with-exclusions.md).
 
 ---
 
