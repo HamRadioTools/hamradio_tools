@@ -579,7 +579,7 @@ Full example:
 }
 ```
 
-### 3.5 Extended → ACTIVATIONS (POTA/SOTA/IOTA/BOTA)
+### 3.5 Extended → ACTIVATIONS
 
 ```json
 {
@@ -604,9 +604,9 @@ Full example:
 
     "extended": {
       "activations": [
-        { "program": "pota", "ref": "eu-123" },
+        { "program": "pota", "ref": "es-123" },
         { "program": "sota", "ref": "ea1/at-001" },
-        { "program": "iota", "ref": "af-001" },
+        { "program": "iota", "ref": "es-001" },
         { "program": "bota", "ref": "b/ea-0001" }
       ]
     }
