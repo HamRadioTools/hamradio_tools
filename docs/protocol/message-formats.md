@@ -121,8 +121,8 @@ This means a spot originating in North America is pointing out to Europe, on 20 
   - HF: `160m` `80m` `60m` `40m` `30m` `20m` `17m` `15m` `12m` `10m`  
   - VHF/UHF: `6m` `4m` `2m` `70cm` `23cm`
   - SHF: `13cm` `9cm` `6cm` `3cm` `1.25cm` `6mm` `4mm` `2.5mm` `2mm` `1mm`
-- Type (routing layer, lowercase only): `cw` `ssb` `am` `fm` `digi` `other`
-- Mode (lowercase ADIF-like terms): `cw` `ft8` `ft4` `rtty` `psk` `jt65` `js8` ...
+- Type (routing layer, lowercase only): `cw` `ssb` `am` `fm` `digi`
+- Mode (lowercase ADIF-like terms): `cw` `lsb` `usb` `am` `fm` `ft8` `ft4` `rtty` `psk` `jt65` `js8` ...
 
 Rules:
 
