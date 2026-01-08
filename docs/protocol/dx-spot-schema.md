@@ -81,34 +81,33 @@ Ingress example (published to `spot/input`):
 ```json
 {
   "spot": {
-
     "identity": {
       "de": "ea1het",
       "dx": "dl0xxx",
-      "src": "manual"
-    },
-    
+      "src": "ham2k"
+    },   
     "radio": {
       "freq": 14005.0,
       "split": null,
       "mode": "cw",
-      "de_grid": "in73dm"
+      "de_grid": "in71dm"
     },
-    
-    "extended": { }
-  
+    "extended": {}
   }
 }
 ```
 
-Normalized example (published to `spot/output` and `spot/filter/...`):
+Normalized example (published to `spot/output` , `spot/filter/...`) and  `spot/route/...`, with additional metadata):
 
 ```json
 {
+
   "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
   "hid": "f2b2b2f8...",
   "sid": "b8b4f9a1...",
+  
   "event_type": "spot_add",
+  
   "spot": {
 
     "identity": {
@@ -124,20 +123,24 @@ Normalized example (published to `spot/output` and `spot/filter/...`):
       "de_grid": "in73dm"
     },
     
-    "extended": { }
+    "extended": {}
   
-  }
-}
+  }  // spot end
+
+}  // message end
 ```
 
-The `spot.extended` object holds optional information such as contest metadata, RBN data, satellite data and activation references among others. This is flexible solution to envision future usages.
+The `spot.extended` object has been designed to hold optional information such as contest metadata, RBN metadata, satellite metadata and/or activation references metadata among others, and let's introduce this functionality to clarify it later: this is flexible solution to envision future usages AND (and this is important) a flexible mechanism to pass through the cluster servers ephemeral data, that means, data that cluster won't persist on the permament monthly output shared files.
 
 ```json
 {
+
   "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
   "hid": "f2b2b2f8...",
   "sid": "b8b4f9a1...",
+  
   "event_type": "spot_add",
+  
   "spot": {
 
     "identity": {
@@ -160,23 +163,28 @@ The `spot.extended` object holds optional information such as contest metadata, 
       "bird": { ... },
       "activations": [ ... ]
       ...
+      // any other nested object here will pass-through but won't be persisted
+      ...
     }
 
-  }
-}
+  }  // spot end
+
+}  // message end
 ```
 
-The concept, which is yet pending to be put against the cords with  everyday practice, is to introduce a spot.extended data block that can carry additional information beyond the standard spot data.
+So, the concept, which is yet pending to be put against the cords with  everyday practice, is to introduce a spot.extended data block that can carry additional information beyond the standard spot data.
 This spot.extended block would serve two main purposes:
 
-- Allow the RCLDX cluster to automatically recognize common, recurring block types (e.g., `contest`, `rbn`, `bird` for satellite QSOs, `activations` for POTA/SOTA/BOTA/WWFF/Lighthouses, etc...).
+- Allow the RCLDX cluster to automatically recognize common, recurring block types (e.g., `contest`, `rbn`, `bird` for satellite QSOs, `activations` for POTA/SOTA/BOTA/WWFF/Lighthouses, etc...) that enrich clients with additional data.
 
 - Remain open for third-party use, primarily by logbook developers, so their software can include extra data that is useful specifically for their own programs.
 
 **NOTE**:  
-When RCLDX archives historical spot data, it will permanently store the officially recognized blocks (like those listed above), but it will not preserve the custom additional blocks added by third-party logbook software.
+When RCLDX archives historical spot data, it will permanently store the officially recognized blocks (like those listed above), but it will not preserve the custom additional blocks added by third-party logbook software. This latter metadata is conceived as ephemeral and treated the as such.
 
-In this way, the spot.extended block becomes a simple, standardized “pipe” through the cluster that allows different logging programs to exchange useful extra information between their users without requiring complex individual integrations. Not saving this data is essential for making it ephemeral, which is meant to be a strategic decision.
+In this way, the spot.extended block becomes a simple, standardized “pipe” through the cluster that allows third-parties to exchange useful extra information between their users without requiring complex individual integrations.
+
+Not saving this "not recognized" metadata is essential for making it ephemeral, which is meant to be a **strategic decision**.
 
 ## 2. Specification of the spot message
 
@@ -212,7 +220,7 @@ In this way, the spot.extended block becomes a simple, standardized “pipe” t
 | --------- | ------ | -------- | --------------------------------------------- |
 | `freq`    | float  | Yes      | Frequency in MHz (decimal required).          |
 | `split`   | float  | No       | Split frequency in MHz (nullable).            |
-| `mode`    | string | Yes      | Mode of operation: `CW`, `SSB`, `FT8`, etc.   |
+| `mode`    | string | Yes      | Mode of operation: `CW`, `LSB`, `FT8`, etc.   |
 | `de_grid` | loc    | Yes      | Maidenhead grid of the DE station (nullable). |
 
 ## 3. The `spot.extended` block
@@ -233,9 +241,11 @@ The block `qso` is meant to carry on the typical exchanges in SSB, CW or Digi. I
 
 ```json
 {
+
   "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
   "hid": "f2b2b2f8...",
   "sid": "b8b4f9a1...",
+  
   "event_type": "spot_add",
   
   "spot": {
@@ -260,8 +270,9 @@ The block `qso` is meant to carry on the typical exchanges in SSB, CW or Digi. I
       }
     }
 
-  }
-}
+  }  // spot end
+
+}  // message end
 ```
 
 Fields:
@@ -367,10 +378,13 @@ Full example:
 
 ```json
 {
+
   "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
   "hid": "f2b2b2f8...",
   "sid": "b8b4f9a1...",
+  
   "event_type": "spot_add",
+  
   "spot": {
 
     "identity": {
@@ -397,8 +411,9 @@ Full example:
       }
     }
 
-  }
-}
+  }  // spot end
+
+}  // message end
 ```
 
 **NOTE**:  
@@ -416,10 +431,13 @@ Depending on the operational mode (CW, RTTY, FT4 or FT8) the potential spot migh
 
 ```json
 {
+
   "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
   "hid": "f2b2b2f8...",
   "sid": "b8b4f9a1...",
+  
   "event_type": "spot_add",
+  
   "spot": {
 
     "identity": {
@@ -446,8 +464,9 @@ Depending on the operational mode (CW, RTTY, FT4 or FT8) the potential spot migh
       }
     }
 
-  }
-}
+  }  // spot end
+
+}  // message end
 ```
 
 Fields:
@@ -465,10 +484,13 @@ Full example:
 
 ```json
 {
+
   "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
   "hid": "f2b2b2f8...",
   "sid": "b8b4f9a1...",
+  
   "event_type": "spot_add",
+  
   "spot": {
 
     "identity": {
@@ -495,18 +517,22 @@ Full example:
       }
     }
 
-  }
-}
+  }  // spot end
+
+}  // message end
 ```
 
 ### 3.4 Extended → BIRD (satellite)
 
 ```json
 {
+
   "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
   "hid": "f2b2b2f8...",
   "sid": "b8b4f9a1...",
+  
   "event_type": "spot_add",
+  
   "spot": {
 
     "identity": {
@@ -530,8 +556,9 @@ Full example:
       }
     }
   
-  }
-}
+  }  // spot end
+
+}  // message end
 ```
 
 Fields:  
@@ -547,10 +574,13 @@ Full example:
 
 ```json
 {
+
   "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
   "hid": "f2b2b2f8...",
   "sid": "b8b4f9a1...",
+
   "event_type": "spot_add",
+  
   "spot": {
   
     "identity": {
@@ -575,18 +605,22 @@ Full example:
       }
     }
 
-  }
-}
+  }  // spot end
+
+}  // message end
 ```
 
 ### 3.5 Extended → ACTIVATIONS
 
 ```json
 {
+
   "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
   "hid": "f2b2b2f8...",
   "sid": "b8b4f9a1...",
+  
   "event_type": "spot_add",
+  
   "spot": {
 
     "identity": {
@@ -611,8 +645,9 @@ Full example:
       ]
     }
 
-  }
-}
+  }  // spot end
+
+}  // message end
 ```
 
 Fields:  
@@ -627,10 +662,13 @@ Full example:
 
 ```json
 {
+
   "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
   "hid": "f2b2b2f8...",
   "sid": "b8b4f9a1...",
+  
   "event_type": "spot_add",
+  
   "spot": {
     
     "identity": {
@@ -652,8 +690,9 @@ Full example:
       ]
     }
   
-  }
-}
+  }  // spot end
+
+}  // message end
 ```
 
 ## 4. Additional DX spot examples
@@ -662,10 +701,13 @@ Full example:
 
 ```json
 {
+
   "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
   "hid": "f2b2b2f8...",
   "sid": "b8b4f9a1...",
+  
   "event_type": "spot_add",
+  
   "spot": {
   
     "identity": {
@@ -683,18 +725,22 @@ Full example:
   
     "extended": { }
   
-  }
-}
+  }  // spot end
+
+}  // message end
 ```
 
 ### 4.2 Combined RBN + activation
 
 ```json
 {
+
   "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
   "hid": "f2b2b2f8...",
   "sid": "b8b4f9a1...",
+  
   "event_type": "spot_add",
+  
   "spot": {
   
     "identity": {
@@ -717,18 +763,22 @@ Full example:
       ]
     }
   
-  }
-}
+  }  // spot end
+
+}  // message end
 ```
 
 ### 4.3 Satellite + POTA activation
 
 ```json
 {
+
   "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
   "hid": "f2b2b2f8...",
   "sid": "b8b4f9a1...",
+  
   "event_type": "spot_add",
+  
   "spot": {
   
     "identity": {
@@ -751,8 +801,9 @@ Full example:
       ]
     }
   
-  }
-}
+  }  // spot end
+
+}  // message end
 ```
 
 ## 5. Validation rules

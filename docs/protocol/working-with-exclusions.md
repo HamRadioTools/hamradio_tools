@@ -23,7 +23,7 @@ The payloads are the same spot message. The `spot/route` stream includes a fully
 Topic structure:
 
 ```txt
-spot/filter/{src_region}/{dst_region}/{band}/{mode_norm}/{submode}
+spot/filter/{src_region}/{dst_region}/{band}/{type}/{mode}
 ```
 
 Example topic:
@@ -32,15 +32,17 @@ Example topic:
 spot/filter/eu/na/20m/ssb/lsb
 ```
 
-This path is useful for broad, inclusive filters like:
+This path is useful for broad, **inclusive** filters like:
 
 - "Only EU to NA"
 - "Only 20m FT8"
 - "Only CW on any band"
 
-It is not suitable for exclusions like "all regions except EU".
+It is **not suitable for exclusions** like "all regions except EU". This is not a limitation of RCLDX, but the protocol beneath, MQTT. So this exclusion should be worked out at the client side.
 
-## 3. spot/route topics (client-side filtering)
+For the client side to be intelligent enough to work on exclusions, an encriched `route` block is added upon spot arrival and router to a specific topic structure.
+
+## 3. `spot/route` topics (client-side filtering)
 
 Topic structure:
 
@@ -52,17 +54,50 @@ Example spot payload (with `route` block):
 
 ```json
 {
-  "route": {
-    "ts_ingest": 1734871532,
-    "t_bucket_10m": 1734871200,
-    "freq_bucket_hz": 14005000,
-    "de_cont": "na",
-    "dx_cont": "eu",
-    "band": "20m",
-    "mode": "digi",
-    "submode": "ft8"
-  }
-}
+
+  "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
+  "hid": "f2b2b2f8...",
+  "sid": "b8b4f9a1...",
+  
+  "event_type": "spot_add",
+
+  "spot": {
+
+    "route": {
+      "ts_ingest": 1734871532,
+      "t_bucket_10m": 1734871200,
+      "freq_bucket_hz": 14005000,
+      "de_cont": "na",
+      "dx_cont": "eu",
+      "band": "20m",
+      "type": "digi",
+      "mode": "ft8"
+    },
+
+    "identity": {
+      "de": "ea1het",
+      "dx": "dl0xxx",
+      "src": "fldigi"
+    },
+    
+    "radio": {
+      "freq": 14074.3,
+      "split": null,
+      "mode": "ft8",
+      "de_grid": "in73dm"
+    },
+    
+    "extended": { 
+      "qso": {
+      "rst_s": 599,
+      "rst_r": 599,
+      "msg": "CQ Europe"
+      }
+    }
+  
+  }  // spot end
+
+}. // topic end
 ```
 
 Recommended client-side filter examples:
@@ -73,8 +108,8 @@ Recommended client-side filter examples:
   - drop if `route.dx_cont == "eu"`
 - Multiple exclusions:
   - drop if `route.de_cont in {"eu", "as"}`
-- Keep only a band/mode:
-  - keep if `route.band == "20m"` and `route.mode == "digi"`
+- Keep only a band/type:
+  - keep if `route.band == "20m"` and `route.type == "digi"`
 
 ## 4. Recommendation
 

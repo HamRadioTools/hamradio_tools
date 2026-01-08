@@ -36,14 +36,17 @@ The system currently defines the following message types:
 
 Message envelopes are type-specific. Most message families use a single root key (`chat`, `wx`, `system`), while DX spots include a transport envelope with identifiers plus a `spot` object.
 
-Spot envelope (normalized):
+Spot envelope (normalized, as they're seen by subscribed clients):
 
 ```json
 {
+
   "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
   "hid": "f2b2b2f8...",
   "sid": "b8b4f9a1...",
+  
   "event_type": "spot_add",
+  
   "spot": {
 
     "identity": {
@@ -59,15 +62,16 @@ Spot envelope (normalized):
       "de_grid": "in73dm"
     },
 
-    "extended": { }
+    "extended": {}
 
-  }
-}
+  }  // spot end
+
+}  // message end
 ```
 
 Notes:
 
-- `event_type` is always lowercase.
+- `event_type` is always lowercase and defines what type of spot is this.
 - `id7`, `hid`, `sid`, `event_type` are added by the cluster once a raw spot enters `spot/input`.
 - The `spot` object carries identity, radio, and extended data (see DX spot schema).
 - All string values in spot payloads should be lowercase; the cluster may normalize or reject mixed-case values.
@@ -81,25 +85,25 @@ This section explains the routing model as a fixed contract between producers, t
 The cluster accepts raw spots on `spot/input`, enriches and normalizes them, then publishes to three outputs:
 
 1. `spot/output` (global firehose, normalized)
-2. `spot/filter/{src_region}/{dst_region}/{band}/{mode_norm}/{submode}` (curated routing topics)
+2. `spot/filter/{src_region}/{dst_region}/{band}/{type}/{mode}` (curated routing topics)
 3. `spot/route/#` (global firehose with the enriched `route` block)
 
-### 3.1 Why two outputs exist
+### 3.1 Why three outputs exist?
 
-The firehose (`spot/output`) is the simplest path: specialists can consume everything and apply their own filtering.
+There is a clear split in output data that keeps the system open to advanced use while remaining friendly to lightweight clients:
 
-The curated topics exist for everyone else, providing a stable and compact routing matrix where wildcards can express common filters without custom parsing logic.
+- The firehose `spot/output` is the simplest path: specialists can consume everything and apply their own filtering at will.
 
-The `spot/route` stream exists for clients that need exclusion or complex filtering logic. It keeps the broker neutral while giving applications the data they need to filter locally.
+- The curated routing topics exist for everyone else, providing a stable and compact routing matrix where wildcards can express common filters without custom parsing logic.
 
-This split keeps the system open to advanced use while remaining friendly to lightweight clients.
+- The `spot/route` stream exists for clients that need exclusion or complex filtering logic. It keeps the broker neutral while giving applications the data they need to filter locally.
 
 ### 3.2 Topic format and meaning
 
 Final topic format:
 
 ```mqtt
-spot/filter/{src_region}/{dst_region}/{band}/{mode_norm}/{submode}
+spot/filter/{src_region}/{dst_region}/{band}/{type}/{mode}
 ```
 
 Example:
@@ -108,7 +112,7 @@ Example:
 spot/filter/na/eu/20m/digi/ft8
 ```
 
-This means a spot originating in North America is pointing out to Europe, on 20 meters, digital mode, submode FT8. The topic string is the routing index. It is designed to be deterministic and human-readable while remaining easy for MQTT brokers and clients to match.
+This means a spot originating in North America is pointing out to Europe, on 20 meters, commumnication type digital, mode FT8. The topic string is the routing index. It is designed to be deterministic and human-readable while remaining easy for MQTT brokers and clients to match.
 
 ### 3.3 Locked vocabularies
 
@@ -117,13 +121,13 @@ This means a spot originating in North America is pointing out to Europe, on 20 
   - HF: `160m` `80m` `60m` `40m` `30m` `20m` `17m` `15m` `12m` `10m`  
   - VHF/UHF: `6m` `4m` `2m` `70cm` `23cm`
   - SHF: `13cm` `9cm` `6cm` `3cm` `1.25cm` `6mm` `4mm` `2.5mm` `2mm` `1mm`
-- Mode normalization (routing layer, lowercase only): `cw` `ssb` `am` `fm` `digi` `other`
-- Submode (lowercase ADIF-like tokens): `ft8` `ft4` `rtty` `psk` `jt65` `js8` ...
+- Type (routing layer, lowercase only): `cw` `ssb` `am` `fm` `digi` `other`
+- Mode (lowercase ADIF-like terms): `cw` `ft8` `ft4` `rtty` `psk` `jt65` `js8` ...
 
 Rules:
 
-- If submode is known, use the exact token.
-- If submode is unknown, use `any`.
+- If mode is known, use the exact token.
+- If mode is unknown, use `any`.
 
 Valid example:
 
@@ -172,7 +176,7 @@ This enables corrections, audits, analytics and reclassification later without b
 
 MQTT topic filters are inclusive only. There is no NOT operator, so exclusions (for example, "everything except EU") must be done by clients.
 
-The `spot/route` stream provides an enriched `route` block in the payload with normalized fields like `de_cont`, `dx_cont`, `band`, `mode`, and `submode`. Clients should use those fields to apply their own exclusion logic without broker-side preference data.
+The `spot/route` stream provides an enriched `route` block in the payload with normalized fields like `de_cont`, `dx_cont`, `band`, `type`, and `mode`. Clients should use those fields to apply their own exclusion logic without broker-side preference data.
 
 For more detail and examples, see [Working with exclusions](protocol/working-with-exclusions.md).
 
@@ -377,10 +381,13 @@ Example with multiple namespaces:
 
 ```json
 {
+
   "id7": "019b45eb-97dd-777a-bfbf-581b8fc92c80",
   "hid": "f2b2b2f8...",
   "sid": "b8b4f9a1...",
+  
   "event_type": "spot_add",
+  
   "spot": {
 
     "identity": {
@@ -404,8 +411,9 @@ Example with multiple namespaces:
       ]
     }
 
-  }
-}
+  }  // spot end
+
+}  // message end
 ```
 
 ---
