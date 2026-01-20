@@ -8,8 +8,10 @@
   - [Index](README.md)
 
 - **About** 
+  - [Manifesto](about/manifesto.md)
   - [Credits](about/credits.md)
   - [Governance](about/governance.md)
+  - [Timeline](about/timeline.md)
   - [Roadmap](about/roadmap.md)
   - [Contributing](about/contributing.md)
   - [FAQ](about/faq.md)
