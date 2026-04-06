@@ -32,6 +32,7 @@ Use the sidebar to navigate the main sections:
 - **Integration** – on-air transports, digital modes, Telnet bridging, REST API
 - **Protocol** – message formats, topics, DX spot schema, filters
 - **Security** – grandfathering model, authentication, abuse mitigation
+- **Authentication for Devs** – endpoint-level integration guidance
 - **User System** – callsign identity, verification, registration flows
 
 You are welcome to fork and adapt this documentation for your own RCLDX-derived projects.

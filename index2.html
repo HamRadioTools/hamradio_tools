@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>hamradio.tools — Spots</title>
+    <link rel="stylesheet" href="./styles.css" />
+</head>
+
+<body>
+    <header class="topbar">
+        <div class="brand">
+            <div class="logo">📡</div>
+            <div>
+                <div class="title">RCLDX CLUSTER</div>
+                <div class="subtitle">LIVE SPOT FEED — MQTT REAL-TIME</div>
+            </div>
+        </div>
+
+        <div class="status">
+            <div class="pill" id="connPill">CONN: —</div>
+            <button class="btn btn-ghost menuBtn" id="filtersMenuBtn" type="button" aria-controls="controlsPanel" aria-expanded="false">☰ Filters</button>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="panel controls" id="controlsPanel">
+            <div class="row">
+                <label class="field">
+                    <span>Search (callsign/comment)</span>
+                    <input id="q" type="text" placeholder="e.g. Callsign, Mode, Activity..." />
+                </label>
+
+                <label class="field">
+                    <span>Band</span>
+                    <select id="band">
+                        <option value="">All</option>
+                    </select>
+                </label>
+
+                <label class="field">
+                    <span>Mode</span>
+                    <select id="modeFilter">
+                        <option value="">All</option>
+                    </select>
+                </label>
+
+                <label class="field">
+                    <span>Spotted continent</span>
+                    <select id="spottedCont">
+                        <option value="">All</option>
+                        <option>AF</option>
+                        <option>AS</option>
+                        <option>EU</option>
+                        <option>NA</option>
+                        <option>OC</option>
+                        <option>SA</option>
+                    </select>
+                </label>
+
+                <label class="field">
+                    <span>Spotter continent</span>
+                    <select id="spotterCont">
+                        <option value="">All</option>
+                        <option>AF</option>
+                        <option>AS</option>
+                        <option>EU</option>
+                        <option>NA</option>
+                        <option>OC</option>
+                        <option>SA</option>
+                    </select>
+                </label>
+
+                <label class="field">
+                    <span>Auto refresh</span>
+                    <div class="switchRow autoControls">
+                        <label class="autoTick" for="auto">
+                            <input id="auto" type="checkbox" />
+                            <span>On</span>
+                        </label>
+                        <button class="btn autoAction" id="refreshBtn" type="button" title="Reload now">Refresh</button>
+                        <select id="interval" class="autoAction" hidden>
+                            <option value="auto" selected>Auto</option>
+                            <option value="2000">2s</option>
+                            <option value="5000">5s</option>
+                            <option value="10000">10s</option>
+                            <option value="20000">20s</option>
+                            <option value="60000">60s</option>
+                        </select>
+                    </div>
+                </label>
+            </div>
+
+            <div class="row row2">
+                <div class="meta">
+                    <div><span class="muted">Last update:</span> <span id="lastUpdate">—</span></div>
+                    <div><span class="muted">Endpoint:</span> <code id="endpointLabel">—</code></div>
+                </div>
+
+                <div class="right">
+                    <button class="btn btn-ghost" id="clearBtn">Clear filters</button>
+                    <button class="btn" id="exportBtn">Export CSV</button>
+                </div>
+            </div>
+        </section>
+
+        <section class="panel tableWrap">
+            <table class="table" id="spotsTable">
+                <thead>
+                    <tr>
+                        <th data-sort="spot_datetime">Time</th>
+                        <th data-sort="band">Band</th>
+                        <th data-sort="mode">Mode</th>
+                        <th data-sort="frequency">Frequency</th>
+                        <th data-sort="spotted">Spottted (DX)</th>
+                        <th data-sort="spotter">Spotter (DE)</th>
+                        <th data-sort="spotter_comment">Comment</th>
+                    </tr>
+                </thead>
+                <tbody id="tbody">
+                    <!-- rows injected -->
+                </tbody>
+            </table>
+            <div class="empty" id="emptyState" hidden>
+                No spots match the current filters.
+            </div>
+            <div class="pagination" id="pagination">
+                <div class="pagerLeft">
+                    <span class="muted pagerLabel">Rows per page:</span>
+                    <select id="rowsPerPage" class="pagerSelect">
+                        <option value="25" selected>25</option>
+                        <option value="50">50</option>
+                        <option value="100">100</option>
+                        <option value="250">250</option>
+                    </select>
+                </div>
+                <div class="pagerRight">
+                    <button class="pagerIcon" id="prevPageBtn" type="button" aria-label="Previous page">‹</button>
+                    <div class="pageNumberList" id="pageNumberList"></div>
+                    <button class="pagerIcon" id="nextPageBtn" type="button" aria-label="Next page">›</button>
+                </div>
+            </div>
+        </section>
+
+        <footer class="footer">
+            <span class="muted">
+                Tip: set <code>?mode=bff&bff=https://your-bff.example</code> or
+                <code>?mode=ws&ws=wss://your-bff.example/ws</code>
+            </span>
+        </footer>
+    </main>
+
+    <script src="./mock-data.js"></script>
+    <script src="./dxcc-flag-map.js"></script>
+    <script src="./app.js"></script>
+</body>
+
+</html>

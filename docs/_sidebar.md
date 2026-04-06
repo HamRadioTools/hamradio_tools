@@ -47,6 +47,9 @@
   - [Authorization](security/authorization.md)
   - [Risk analysis](security/risk-analysis.md)
 
+- **Authentication for Devs**
+  - [Dev integration](security/authentication-for-devs.md)
+
 - **Integration**
   - [MeshCore air interface](integration/meshcore-air-interface.md)
   - [Telnet bridge](integration/telnet-bridge.md)
